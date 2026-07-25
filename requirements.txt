@@ -1,0 +1,7 @@
+dxcam==0.3.0
+PyOpenGL>=3.1.7
+glfw>=2.6.0
+numpy>=1.24
+watchdog>=3.0
+keyboard>=0.13.5
+Pillow>=10.0

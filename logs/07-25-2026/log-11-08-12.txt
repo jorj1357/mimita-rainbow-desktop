@@ -1,0 +1,23 @@
+=== desktop-fx log 2026-07-25 11:08:12 ===
+overlay thread starting
+window size: 1920x1080 fullscreen=1
+overlay HWND=0x00000000005E0DC2 visible=1
+SetWindowDisplayAffinity: 1 (GLE=0)
+GetWindowDisplayAffinity: 0x00000011 (expected 0x00000011)
+window styles: style=0x94000000 exStyle=0x080800A8
+trying adapter[0]: NVIDIA GeForce RTX 4050 Laptop GPU
+  SUCCESS: adapter[0]
+shaders compiled OK
+D3D11 init OK
+WinRT device created
+monitor: 1920x1080
+capture item created
+frame pool created (capacity=2)
+cursor capture disabled
+capture started
+WinRT capture init OK
+first frame captured
+sizeof(ShaderConstants)=116
+overlay thread exiting
+WinRT capture released
+shutdown complete

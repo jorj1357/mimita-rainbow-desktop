@@ -1,0 +1,15 @@
+=== desktop-fx log 2026-07-24 19:34:56 ===
+overlay thread starting
+window size: 1920x1080 fullscreen=1
+overlay HWND=0x00000000003B09BA visible=1
+SetWindowDisplayAffinity: 1 (GLE=0)
+GetWindowDisplayAffinity: 0x00000011 (expected 0x00000011)
+window styles: style=0x94000000 exStyle=0x080800A8
+trying adapter[0]: NVIDIA GeForce RTX 4050 Laptop GPU
+  SUCCESS: adapter[0]
+HLSL ps_main ps_5_0 error:
+C:\important\ui-visuals-test-v1\Shader@0x00007FF6B7DB5BC0(105,51-64): error X3014: incorrect number of arguments to numeric-type constructor
+
+Shader compile failed
+FAILED: D3D11
+shutdown complete

@@ -1,0 +1,17 @@
+=== desktop-fx log 2026-07-24 10:38:00 ===
+starting (DIAGNOSTIC MODE: 640x480 test window)
+window size: 640x480
+overlay HWND=0x0000000000600CF4
+SetWindowDisplayAffinity succeeded
+GetWindowDisplayAffinity: affinity=0x00000011 (WDA_EXCLUDEFROMCAPTURE=0x00000011)
+window styles: style=0x84000000 exStyle=0x08000088
+overlay created OK
+shaders compiled OK
+D3D11 init OK
+hotkey registered: Ctrl+Shift+Alt+K
+rendering solid red test pattern for 10 seconds...
+test pattern texture created (solid red)
+test pattern visible? You should see a RED 640x480 box at top-left
+test pattern phase complete, transitioning to capture...
+capture phase not yet implemented in diagnostic mode
+shutting down

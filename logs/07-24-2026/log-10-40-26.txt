@@ -1,0 +1,21 @@
+=== desktop-fx log 2026-07-24 10:40:26 ===
+starting (DIAGNOSTIC MODE: 640x480 test window)
+wndclass atom=49901
+window size: 640x480
+overlay HWND=0x00000000010D0A74, visible=1
+window styles: style=0x94000000 exStyle=0x00000008
+SetWindowDisplayAffinity: 1 (GLE=0)
+GetWindowDisplayAffinity: 0x00000011
+overlay created OK
+trying adapter[0]: NVIDIA GeForce RTX 4050 Laptop GPU (VRAM=5920MB)
+  SUCCESS: adapter[0] swap chain created
+backbuffer: 0x000001EED66EA7A0
+shaders compiled OK
+D3D11 init OK (adapter works)
+hotkey registered: Ctrl+Shift+Alt+K
+rendering solid red test pattern for 10 seconds...
+test pattern texture created (solid red)
+test pattern visible? You should see a RED 640x480 box at top-left
+test pattern phase complete, transitioning to capture...
+capture phase not yet implemented in diagnostic mode
+shutting down

@@ -1,0 +1,6 @@
+=== desktop-fx log 2026-07-24 10:01:48 ===
+starting
+screen: 1920x1080
+overlay created OK
+Shader compilation failed
+FAILED: DirectX 11 init

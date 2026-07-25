@@ -1,0 +1,60 @@
+{
+  "effects": {
+    "blend_mode": {
+      "enabled": false,
+      "mode": "normal"
+    },
+    "chromatic_aberration": {
+      "amount": 0.003000000026077032,
+      "enabled": false,
+      "fade_speed": 1.0,
+      "mode": "off"
+    },
+    "contrast": {
+      "amount": 1.0,
+      "enabled": false
+    },
+    "edge_detect": {
+      "enabled": false
+    },
+    "glitch": {
+      "enabled": false,
+      "intensity": 0.05000000074505806
+    },
+    "grayscale": {
+      "enabled": false
+    },
+    "hue": {
+      "amount": 0.6700000166893005,
+      "enabled": false,
+      "speed": 0.6700000166893005
+    },
+    "invert": {
+      "enabled": false
+    },
+    "motion_trail": {
+      "enabled": false,
+      "frames": 10,
+      "opacity": 0.5
+    },
+    "pixelate": {
+      "block_size": 8.0,
+      "enabled": false
+    },
+    "saturation": {
+      "amount": 1.0,
+      "enabled": false
+    },
+    "screen_wave": {
+      "enabled": false,
+      "intensity": 0.019999999552965164,
+      "speed": 0.5
+    },
+    "sharpness": {
+      "amount": 1.0,
+      "enabled": false
+    }
+  },
+  "enabled": true,
+  "panic_key": "ctrl+shift+alt+k"
+}

@@ -1,0 +1,29 @@
+=== desktop-fx log 2026-07-24 10:41:45 ===
+starting
+window size: 1920x1080 fullscreen=1
+overlay HWND=0x0000000000720C8A visible=1
+SetWindowDisplayAffinity: 1 (GLE=0)
+GetWindowDisplayAffinity: 0x00000011 (expected 0x00000011)
+window styles: style=0x94000000 exStyle=0x080000A8
+trying adapter[0]: NVIDIA GeForce RTX 4050 Laptop GPU (VRAM=5920MB)
+  SUCCESS: adapter[0] swap chain created
+backbuffer: 0x0000025CD3ABCC60
+shaders compiled OK
+D3D11 init OK (adapter works)
+WinRT device created
+monitor: 1920x1080
+capture item created
+frame pool created (capacity=2)
+cursor capture disabled
+capture started
+WinRT capture init OK
+Ctrl+Shift+Alt+K to quit
+first frame: 1920x1080
+[CAPTURE EXCLUSION PASS]
+running: 60 frames
+running: 600 frames - effects stable, no compounding
+running: 60 frames
+running: 600 frames - effects stable, no compounding
+running: 60 frames
+running: 600 frames - effects stable, no compounding
+running: 60 frames

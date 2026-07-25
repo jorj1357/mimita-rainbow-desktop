@@ -1,0 +1,27 @@
+=== desktop-fx log 2026-07-24 10:34:13 ===
+starting
+screen: 1920x1080
+overlay HWND=0x0000000000320CC0
+SetWindowDisplayAffinity succeeded
+GetWindowDisplayAffinity: affinity=0x00000011 (WDA_EXCLUDEFROMCAPTURE=0x00000011)
+window styles: style=0x84000000 exStyle=0x08080088
+overlay created OK
+shaders compiled OK
+D3D11 init OK
+primary monitor HMONITOR=0x0000000000010001
+WinRT device created
+monitor: 1920x1080
+capture item created
+frame pool created (capacity=2)
+cursor capture disabled
+capture started
+WinRT capture init OK
+hotkey registered: Ctrl+Shift+Alt+K
+config loaded: hue=on speed=2.0
+first captured frame: 1920x1080
+[CAPTURE EXCLUSION PASS] overlay marker absent from captured frame
+running: 60 frames
+running: 600 frames (10s) - checking for effect compounding...
+hue should be cycling smoothly without compounding
+running: 60 frames
+shutting down
