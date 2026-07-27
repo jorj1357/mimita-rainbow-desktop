@@ -1,18 +1,17 @@
 {
   "effects": {
     "blend_mode": {
-      "enabled": true,
-      "mode": "xnor"
+      "enabled": false,
+      "mode": "normal"
     },
     "chromatic_aberration": {
-      "amount": 0.0,
+      "amount": 0.003000000026077032,
       "enabled": false,
-      "fade_speed": 1.0,
-      "mode": "off"
+      "fade_speed": 1.0
     },
     "contrast": {
-      "amount": 1.190000057220459,
-      "enabled": true
+      "amount": 5.0,
+      "enabled": false
     },
     "edge_detect": {
       "enabled": false
@@ -21,38 +20,67 @@
       "enabled": false,
       "intensity": 0.05000000074505806
     },
+    "glow": {
+      "distance": 0.30000001192092896,
+      "enabled": false,
+      "intensity": 1.0199999809265137,
+      "move_enabled": false,
+      "speed": 2.3299999237060547
+    },
     "grayscale": {
       "enabled": false
     },
     "hue": {
-      "amount": 0.10000000149011612,
-      "enabled": true,
-      "speed": 0.10000000149011612
+      "amount": 0.07000000029802322,
+      "b_enabled": true,
+      "enabled": false,
+      "g_enabled": true,
+      "max_speed": 0.0010000000474974513,
+      "min_speed": 0.0,
+      "mod_enabled": true,
+      "mod_speed": 1.0,
+      "r_enabled": true,
+      "speed": 0.07000000029802322
     },
     "invert": {
       "enabled": false
     },
     "motion_trail": {
-      "enabled": false,
-      "frames": 10,
-      "opacity": 1.0
+      "enabled": true,
+      "frames": 0,
+      "opacity": 0.0
     },
     "pixelate": {
       "block_size": 8.0,
       "enabled": false
     },
     "saturation": {
-      "amount": 5.0,
+      "amount": 2.2300000190734863,
       "enabled": false
     },
     "screen_wave": {
-      "enabled": true,
-      "intensity": 0.0010000000474974513,
-      "speed": 0.5
+      "distance": 1.0,
+      "enabled": false,
+      "intensity": 0.0020000000949949026,
+      "rotation_enabled": true,
+      "rotation_max": 180.0,
+      "rotation_min": -180.0,
+      "shift_amount": 0.5,
+      "shift_enabled": true,
+      "shift_speed": 1.0,
+      "speed": 0.0,
+      "x_enabled": true,
+      "y_enabled": true
     },
     "sharpness": {
-      "amount": 10.0,
-      "enabled": true
+      "amount": 2.140000104904175,
+      "enabled": false
+    },
+    "stop_motion": {
+      "additive": false,
+      "capture_interval": 10,
+      "debug_colors": false,
+      "decay_multiplier": 0.5
     }
   },
   "enabled": true,

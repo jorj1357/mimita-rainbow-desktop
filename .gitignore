@@ -1,2 +1,7 @@
 .obj
 *.obj
+logs/
+build/*.exe
+build/*.txt
+output_window_log.txt
+*.log

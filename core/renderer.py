@@ -111,10 +111,10 @@ class Renderer:
         glUniform1f(glGetUniformLocation(self._program, "u_time"), 0.0)
 
         for name in ["u_hue_enabled", "u_contrast_enabled", "u_saturation_enabled",
-                      "u_psychedelic_enabled", "u_blend_enabled", "u_trail_enabled",
-                      "u_invert_enabled", "u_grayscale_enabled", "u_pixelate_enabled",
-                      "u_glitch_enabled", "u_kaleidoscope_enabled", "u_chromatic_enabled",
-                      "u_bloom_enabled", "u_edge_enabled"]:
+                       "u_psychedelic_enabled", "u_blend_enabled", "u_trail_enabled",
+                       "u_invert_enabled", "u_grayscale_enabled", "u_pixelate_enabled",
+                       "u_glitch_enabled", "u_kaleidoscope_enabled", "u_chromatic_enabled",
+                       "u_bloom_enabled", "u_edge_enabled", "u_glow_enabled"]:
             loc = glGetUniformLocation(self._program, name)
             if loc != -1:
                 glUniform1i(loc, 0)
@@ -208,6 +208,13 @@ class Renderer:
 
         ed = e.get("edge_detect", {})
         glUniform1i(glGetUniformLocation(self._program, "u_edge_enabled"), ed.get("enabled", False))
+
+        gw = e.get("glow", {})
+        glUniform1i(glGetUniformLocation(self._program, "u_glow_enabled"), gw.get("enabled", False))
+        glUniform1f(glGetUniformLocation(self._program, "u_glow_intensity"), gw.get("intensity", 0.3))
+        glUniform1f(glGetUniformLocation(self._program, "u_glow_speed"), gw.get("speed", 0.3))
+        glUniform1f(glGetUniformLocation(self._program, "u_glow_distance"), gw.get("distance", 0.3))
+        glUniform1i(glGetUniformLocation(self._program, "u_glow_move_enabled"), gw.get("move_enabled", True))
 
         self._check_gl("uniforms")
 
