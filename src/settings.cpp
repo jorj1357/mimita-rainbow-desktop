@@ -578,7 +578,7 @@ void RefreshPresetDropdown() {
 }
 
 static void CreatePresetControls(HWND parent) {
-    int y = 670;
+    int y = 720;
     CreateWindowW(L"STATIC", L"", WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ,
         10, y, 470, 2, parent, nullptr, nullptr, nullptr);
     y += 10;
@@ -743,6 +743,9 @@ static LRESULT CALLBACK SettingsWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
                     SetActivePreset(name);
                     RefreshPresetDropdown();
                     Log::Write("GUI: saved preset '%s'", name.c_str());
+                    wchar_t msg[512];
+                    swprintf_s(msg, L"Preset \"%hs\" saved successfully.", name.c_str());
+                    MessageBoxW(hwnd, msg, L"Preset Saved", MB_OK | MB_ICONINFORMATION);
                 }
                 return 0;
             }
