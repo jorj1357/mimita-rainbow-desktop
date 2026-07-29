@@ -206,7 +206,7 @@ D3D11Renderer::~D3D11Renderer() {
 void D3D11Renderer::SetShaderConstants(const ShaderConstants& c) {
     D3D11_MAPPED_SUBRESOURCE m;
     if (SUCCEEDED(ctx_->Map(shaders_.constant_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &m))) {
-        size_t bufSize = 208;
+        size_t bufSize = 512;
         size_t copySize = (sizeof(c) < bufSize) ? sizeof(c) : bufSize;
         memcpy(m.pData, &c, copySize);
         if (copySize < bufSize) memset((BYTE*)m.pData + copySize, 0, bufSize - copySize);

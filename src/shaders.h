@@ -33,6 +33,10 @@ cbuffer Constants : register(b0) {
     float g_wave_rotation_max; int g_trail_enabled; float g_trail_decay; float g_trail_opacity;
     int g_glow_enabled; float g_glow_intensity; float g_glow_speed; float g_glow_distance;
     int g_glow_move_enabled; int g_pad2;
+    int g_texture_breathing_enabled; float g_texture_breathing_strength; float g_texture_breathing_speed; float g_texture_breathing_scale;
+    float g_texture_breathing_noise_strength; int g_pareidolia_enabled; float g_pareidolia_strength; int g_pareidolia_zone_count;
+    float g_pareidolia_min_radius; float g_pareidolia_max_radius; float g_pareidolia_emergence_speed; float g_pareidolia_symmetry_strength;
+    float g_pareidolia_contrast_strength; int g_pareidolia_debug_view; int g_pad3; int g_pad4;
 };
 // @@GEN_HLSL_CBUFFER_END@@
 float3 rgb2hsv(float3 c) {
@@ -48,8 +52,111 @@ float3 hsv2rgb(float3 c) {
     return c.z*lerp(K.xxx,saturate(p-K.xxx),c.y);
 }
 
+// --- procedural noise ---
+float hash21(float2 p) {
+    p = frac(p * float2(123.34, 456.21));
+    p += dot(p, p + 45.32);
+    return frac(p.x * p.y);
+}
+float smoothNoise(float2 p, float t) {
+    float2 i = floor(p);
+    float2 f = frac(p);
+    f = f * f * (3.0 - 2.0 * f);
+    float a = hash21(i + float2(0, 0) + t);
+    float b = hash21(i + float2(1, 0) + t);
+    float c = hash21(i + float2(0, 1) + t);
+    float d = hash21(i + float2(1, 1) + t);
+    return lerp(lerp(a, b, f.x), lerp(c, d, f.x), f.y);
+}
+float fbm(float2 p, float t, int octaves) {
+    float v = 0, amp = 0.5, freq = 1.0;
+    for (int i = 0; i < octaves; i++) { v += amp * smoothNoise(p * freq, t); freq *= 2.0; amp *= 0.5; }
+    return v;
+}
+float2 breahtingDisplacement(float2 uv, float t) {
+    float s = g_texture_breathing_strength * 0.02;
+    float2 d = 0;
+    d += float2(fbm(uv * g_texture_breathing_scale * 0.3, t * 0.1, 2), fbm(uv * g_texture_breathing_scale * 0.3 + 100, t * 0.1, 2)) * s;
+    d += float2(fbm(uv * g_texture_breathing_scale * 0.8, t * 0.2 + 50, 3), fbm(uv * g_texture_breathing_scale * 0.8 + 200, t * 0.2, 3)) * s * g_texture_breathing_noise_strength * 0.3;
+    return d;
+}
+
+// --- pareidolia zone generation ---
+struct PareidoliaZone {
+    float2 center;
+    float radius;
+    float lifetime; float strength;
+    float2 eyeL; float2 eyeR;
+    float mouthY; float rotation;
+};
+PareidoliaZone getZone(int idx, float t) {
+    PareidoliaZone z;
+    float seed = (float)idx * 7.137 + floor(t * g_pareidolia_emergence_speed) * 1.317;
+    float2 s2 = float2(seed, seed * 3.731);
+    z.center = float2(hash21(s2), hash21(s2 + 1));
+    z.radius = lerp(g_pareidolia_min_radius, g_pareidolia_max_radius, hash21(s2 + 2));
+    z.rotation = hash21(s2 + 3) * 6.2832;
+    float eyeSpread = z.radius * lerp(0.2, 0.35, hash21(s2 + 4));
+    float eyeHeight = z.radius * lerp(-0.1, 0.05, hash21(s2 + 5));
+    float asym = hash21(s2 + 6) * 0.3;
+    float ca = cos(z.rotation), sa = sin(z.rotation);
+    z.eyeL = z.center + float2(-eyeSpread * ca - eyeHeight * sa, -eyeSpread * sa + eyeHeight * ca);
+    z.eyeR = z.center + float2(eyeSpread * ca - (eyeHeight + asym * z.radius * 0.1) * sa, eyeSpread * sa + (eyeHeight + asym * z.radius * 0.1) * ca);
+    z.mouthY = z.center.y + z.radius * lerp(0.1, 0.3, hash21(s2 + 7));
+    float dur = lerp(8.0, 20.0, hash21(s2 + 8));
+    float local = frac(t / dur) * dur;
+    float emergeEnd = dur * 0.3;
+    float fadeStart = dur * 0.65;
+    if (local < emergeEnd) z.lifetime = smoothstep(0, emergeEnd, local);
+    else if (local > fadeStart) z.lifetime = 1.0 - smoothstep(fadeStart, dur, local);
+    else z.lifetime = 1.0;
+    z.strength = z.lifetime * g_pareidolia_strength;
+    return z;
+}
+float2 pareidoliaDisplacement(float2 uv, float t, out float contrastOut) {
+    float2 off = 0;
+    contrastOut = 0;
+    int maxZ = min(g_pareidolia_zone_count, 16);
+    for (int i = 0; i < maxZ; i++) {
+        PareidoliaZone z = getZone(i, t);
+        float d = distance(uv, z.center);
+        float w = smoothstep(z.radius, 0, d) * z.strength;
+        if (w < 0.001) continue;
+        float2 toEyeL = z.eyeL - uv;
+        float2 toEyeR = z.eyeR - uv;
+        float dL = length(toEyeL);
+        float dR = length(toEyeR);
+        float eyeRadius = z.radius * 0.15;
+        if (dL < eyeRadius) { off += normalize(toEyeL) * (1 - dL / eyeRadius) * w * 0.003; }
+        if (dR < eyeRadius) { off += normalize(toEyeR) * (1 - dR / eyeRadius) * w * 0.003; }
+        float mouthDist = abs(uv.y - z.mouthY);
+        float mouthWidth = z.radius * 0.5;
+        if (mouthDist < z.radius * 0.08 && abs(uv.x - z.center.x) < mouthWidth) {
+            off.y += (z.mouthY - uv.y) * (1 - mouthDist / (z.radius * 0.08)) * w * 0.002;
+        }
+        float symX = z.center.x * 2 - uv.x;
+        float symStrength = w * g_pareidolia_symmetry_strength;
+        if (symStrength > 0.001) { off.x += (symX - uv.x) * symStrength * 0.001; }
+        float nearestAnchor = min(dL, dR);
+        float aw = smoothstep(z.radius * 0.2, 0, nearestAnchor) * w;
+        contrastOut += aw * g_pareidolia_contrast_strength;
+    }
+    return off;
+}
+
 float4 ps_main(VSOutput input) : SV_TARGET {
     float2 uv = input.uv;
+
+    // --- texture breathing + pareidolia displacement (pre-sample) ---
+    float breathContrast = 0;
+    if (g_texture_breathing_enabled || g_pareidolia_enabled) {
+        float2 deform = 0;
+        if (g_texture_breathing_enabled)
+            deform += breahtingDisplacement(uv, g_time);
+        if (g_pareidolia_enabled)
+            deform += pareidoliaDisplacement(uv, g_time, breathContrast);
+        uv += deform;
+    }
     float3 color = g_texture.Sample(g_sampler, uv).rgb;
 
     // Screen Wave
@@ -178,6 +285,37 @@ float4 ps_main(VSOutput input) : SV_TARGET {
         else if (g_blend_enabled==8) color = float3((int(color.r*255)&int(b.r*255))/255.0, (int(color.g*255)&int(b.g*255))/255.0, (int(color.b*255)&int(b.b*255))/255.0);
         else if (g_blend_enabled==9) color = float3((int(color.r*255)|int(b.r*255))/255.0, (int(color.g*255)|int(b.g*255))/255.0, (int(color.b*255)|int(b.b*255))/255.0);
     }
+
+    // --- pareidolia contrast modulation ---
+    if (g_pareidolia_enabled && breathContrast > 0.01) {
+        float gray = dot(color, float3(0.299, 0.587, 0.114));
+        float boosted = gray + (color.g - gray) * (1.0 + breathContrast);
+        float a = min(breathContrast * 0.3, 1.0);
+        color = lerp(color, float3(boosted, boosted, boosted), a);
+    }
+
+    // --- pareidolia debug view ---
+    if (g_pareidolia_debug_view) {
+        int maxZ = min(g_pareidolia_zone_count, 16);
+        for (int i = 0; i < maxZ; i++) {
+            PareidoliaZone z = getZone(i, g_time);
+            if (z.strength < 0.01) continue;
+            float d = distance(uv, z.center);
+            float zoneEdge = abs(d - z.radius);
+            if (zoneEdge < 0.004) color = float3(1, 0, 0);
+            if (d < z.radius) {
+                float2 de = uv - z.center;
+                float angle = atan2(de.y, de.x);
+                float debugStrength = (0.5 + 0.5 * sin(angle * 6 + g_time)) * 0.15 * z.strength;
+                color = lerp(color, float3(1, 0.3, 0), debugStrength);
+            }
+            if (distance(uv, z.eyeL) < 0.008) color = float3(0, 1, 0);
+            if (distance(uv, z.eyeR) < 0.008) color = float3(0, 1, 0);
+            float mouthHW = z.radius * 0.5;
+            if (abs(uv.y - z.mouthY) < 0.003 && abs(uv.x - z.center.x) < mouthHW) color = float3(0, 0.5, 1);
+            if (abs(uv.x - z.center.x) < 0.002 && d < z.radius) color = float3(1, 1, 0);
+        }
+    }
     return float4(color, 1.0);
 }
 )";
@@ -249,9 +387,25 @@ struct ShaderConstants {
     float g_glow_distance;
     int g_glow_move_enabled;
     int g_pad2;
+    int g_texture_breathing_enabled;
+    float g_texture_breathing_strength;
+    float g_texture_breathing_speed;
+    float g_texture_breathing_scale;
+    float g_texture_breathing_noise_strength;
+    int g_pareidolia_enabled;
+    float g_pareidolia_strength;
+    int g_pareidolia_zone_count;
+    float g_pareidolia_min_radius;
+    float g_pareidolia_max_radius;
+    float g_pareidolia_emergence_speed;
+    float g_pareidolia_symmetry_strength;
+    float g_pareidolia_contrast_strength;
+    int g_pareidolia_debug_view;
+    int g_pad3;
+    int g_pad4;
 };
 
-static_assert(sizeof(ShaderConstants) <= 256, "ShaderConstants too large for HLSL cbuffer");
+static_assert(sizeof(ShaderConstants) <= 512, "ShaderConstants too large for HLSL cbuffer");
 static_assert(offsetof(ShaderConstants, g_time) == 0, "g_time offset mismatch");
 static_assert(offsetof(ShaderConstants, g_hue_amount) == 4, "g_hue_amount offset mismatch");
 static_assert(offsetof(ShaderConstants, g_hue_speed) == 8, "g_hue_speed offset mismatch");
@@ -302,6 +456,20 @@ static_assert(offsetof(ShaderConstants, g_glow_speed) == 184, "g_glow_speed offs
 static_assert(offsetof(ShaderConstants, g_glow_distance) == 188, "g_glow_distance offset mismatch");
 static_assert(offsetof(ShaderConstants, g_glow_move_enabled) == 192, "g_glow_move_enabled offset mismatch");
 static_assert(offsetof(ShaderConstants, g_pad2) == 196, "g_pad2 offset mismatch");
+static_assert(offsetof(ShaderConstants, g_texture_breathing_enabled) == 200, "g_texture_breathing_enabled offset mismatch");
+static_assert(offsetof(ShaderConstants, g_texture_breathing_strength) == 204, "g_texture_breathing_strength offset mismatch");
+static_assert(offsetof(ShaderConstants, g_texture_breathing_speed) == 208, "g_texture_breathing_speed offset mismatch");
+static_assert(offsetof(ShaderConstants, g_texture_breathing_scale) == 212, "g_texture_breathing_scale offset mismatch");
+static_assert(offsetof(ShaderConstants, g_texture_breathing_noise_strength) == 216, "g_texture_breathing_noise_strength offset mismatch");
+static_assert(offsetof(ShaderConstants, g_pareidolia_enabled) == 220, "g_pareidolia_enabled offset mismatch");
+static_assert(offsetof(ShaderConstants, g_pareidolia_strength) == 224, "g_pareidolia_strength offset mismatch");
+static_assert(offsetof(ShaderConstants, g_pareidolia_zone_count) == 228, "g_pareidolia_zone_count offset mismatch");
+static_assert(offsetof(ShaderConstants, g_pareidolia_min_radius) == 232, "g_pareidolia_min_radius offset mismatch");
+static_assert(offsetof(ShaderConstants, g_pareidolia_max_radius) == 236, "g_pareidolia_max_radius offset mismatch");
+static_assert(offsetof(ShaderConstants, g_pareidolia_emergence_speed) == 240, "g_pareidolia_emergence_speed offset mismatch");
+static_assert(offsetof(ShaderConstants, g_pareidolia_symmetry_strength) == 244, "g_pareidolia_symmetry_strength offset mismatch");
+static_assert(offsetof(ShaderConstants, g_pareidolia_contrast_strength) == 248, "g_pareidolia_contrast_strength offset mismatch");
+static_assert(offsetof(ShaderConstants, g_pareidolia_debug_view) == 252, "g_pareidolia_debug_view offset mismatch");
 // @@GEN_SHADER_STRUCT_END@@
 
 static const char* TEMPORAL_PS_SRC = R"(

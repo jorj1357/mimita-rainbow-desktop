@@ -106,11 +106,28 @@ bool LoadConfig(const std::string& path, AppConfig& cfg) {
         cfg.trail_frames = (int)gb("motion_trail","frames", 10);
 // @@GEN_LOAD_CONFIG_END@@
 
+        // Texture Breathing
+        cfg.texture_breathing_enabled = gb("texture_breathing","enabled", false);
+        cfg.texture_breathing_strength = gb("texture_breathing","strength", 0.3f);
+        cfg.texture_breathing_speed = gb("texture_breathing","speed", 0.5f);
+        cfg.texture_breathing_scale = gb("texture_breathing","scale", 2.0f);
+        cfg.texture_breathing_noise_strength = gb("texture_breathing","noise_strength", 0.5f);
+
+        // Pareidolia
+        cfg.pareidolia_enabled = gb("pareidolia","enabled", false);
+        cfg.pareidolia_strength = gb("pareidolia","strength", 0.3f);
+        cfg.pareidolia_zone_count = (int)gb("pareidolia","zone_count", 6);
+        cfg.pareidolia_min_radius = gb("pareidolia","min_radius", 0.05f);
+        cfg.pareidolia_max_radius = gb("pareidolia","max_radius", 0.2f);
+        cfg.pareidolia_emergence_speed = gb("pareidolia","emergence_speed", 0.15f);
+        cfg.pareidolia_symmetry_strength = gb("pareidolia","symmetry_strength", 0.3f);
+        cfg.pareidolia_contrast_strength = gb("pareidolia","contrast_strength", 0.2f);
+        cfg.pareidolia_debug_view = gb("pareidolia","debug_view", false);
+
         cfg.trail_capture_interval = (int)gb("stop_motion","capture_interval", 1);
         cfg.trail_decay_multiplier = gb("stop_motion","decay_multiplier", 0.5f);
         cfg.trail_debug_colors = gb("stop_motion","debug_colors", false);
         cfg.trail_additive = gb("stop_motion","additive", false);
-        // trail_clear_request is NOT loaded from config (one-shot command)
 
         s_last_write = GetLastWriteTime(path);
     } catch (...) { return false; }

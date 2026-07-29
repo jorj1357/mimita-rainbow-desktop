@@ -35,6 +35,24 @@ struct AppConfig {
     bool glow_enabled = false; float glow_intensity = 0.3f;
     float glow_speed = 0.3f; float glow_distance = 0.3f;
     bool glow_move_enabled = true;
+
+    // Texture Breathing
+    bool texture_breathing_enabled = false;
+    float texture_breathing_strength = 0.3f;
+    float texture_breathing_speed = 0.5f;
+    float texture_breathing_scale = 2.0f;
+    float texture_breathing_noise_strength = 0.5f;
+
+    // Pareidolia
+    bool pareidolia_enabled = false;
+    float pareidolia_strength = 0.3f;
+    int pareidolia_zone_count = 6;
+    float pareidolia_min_radius = 0.05f;
+    float pareidolia_max_radius = 0.2f;
+    float pareidolia_emergence_speed = 0.15f;
+    float pareidolia_symmetry_strength = 0.3f;
+    float pareidolia_contrast_strength = 0.2f;
+    bool pareidolia_debug_view = false;
 };
 
 extern AppConfig g_config;

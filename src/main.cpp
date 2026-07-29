@@ -141,7 +141,21 @@ static DWORD WINAPI OverlayThread(LPVOID param) {
         c.g_glow_speed = cfg.glow_speed;
         c.g_glow_distance = cfg.glow_distance;
         c.g_glow_move_enabled = cfg.glow_move_enabled ? 1 : 0;
-        c.g_pad2 = 0;
+        c.g_texture_breathing_enabled = cfg.texture_breathing_enabled ? 1 : 0;
+        c.g_texture_breathing_strength = cfg.texture_breathing_strength;
+        c.g_texture_breathing_speed = cfg.texture_breathing_speed;
+        c.g_texture_breathing_scale = cfg.texture_breathing_scale;
+        c.g_texture_breathing_noise_strength = cfg.texture_breathing_noise_strength;
+        c.g_pareidolia_enabled = cfg.pareidolia_enabled ? 1 : 0;
+        c.g_pareidolia_strength = cfg.pareidolia_strength;
+        c.g_pareidolia_zone_count = cfg.pareidolia_zone_count;
+        c.g_pareidolia_min_radius = cfg.pareidolia_min_radius;
+        c.g_pareidolia_max_radius = cfg.pareidolia_max_radius;
+        c.g_pareidolia_emergence_speed = cfg.pareidolia_emergence_speed;
+        c.g_pareidolia_symmetry_strength = cfg.pareidolia_symmetry_strength;
+        c.g_pareidolia_contrast_strength = cfg.pareidolia_contrast_strength;
+        c.g_pareidolia_debug_view = cfg.pareidolia_debug_view ? 1 : 0;
+        c.g_pad3 = 0; c.g_pad4 = 0;
 // @@GEN_POPULATE_SHADER_END@@
 
         renderer.SetShaderConstants(c);

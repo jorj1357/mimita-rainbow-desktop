@@ -1,17 +1,17 @@
 {
   "effects": {
     "blend_mode": {
-      "enabled": false,
-      "mode": "normal"
+      "enabled": true,
+      "mode": "subtract"
     },
     "chromatic_aberration": {
-      "amount": 0.003000000026077032,
-      "enabled": false,
+      "amount": 0.0,
+      "enabled": true,
       "fade_speed": 1.0
     },
     "contrast": {
-      "amount": 1.0,
-      "enabled": false
+      "amount": 0.5799999833106995,
+      "enabled": true
     },
     "edge_detect": {
       "enabled": false
@@ -31,50 +31,50 @@
       "enabled": false
     },
     "hue": {
-      "amount": 0.6700000166893005,
-      "b_enabled": false,
-      "enabled": false,
-      "g_enabled": false,
-      "max_speed": 10.0,
+      "amount": 0.0020000000949949026,
+      "b_enabled": true,
+      "enabled": true,
+      "g_enabled": true,
+      "max_speed": 0.0020000000949949026,
       "min_speed": 0.0,
-      "mod_enabled": false,
+      "mod_enabled": true,
       "mod_speed": 1.0,
-      "r_enabled": false,
-      "speed": 0.6700000166893005
+      "r_enabled": true,
+      "speed": 0.0020000000949949026
     },
     "invert": {
       "enabled": false
     },
     "motion_trail": {
       "enabled": true,
-      "frames": 1,
+      "frames": 55,
       "opacity": 0.0
     },
     "pixelate": {
-      "block_size": 8.0,
+      "block_size": 0.10000000149011612,
       "enabled": false
     },
     "saturation": {
-      "amount": 1.0,
-      "enabled": false
+      "amount": 55.0,
+      "enabled": true
     },
     "screen_wave": {
-      "distance": 1.0,
-      "enabled": false,
-      "intensity": 0.019999999552965164,
-      "rotation_enabled": false,
+      "distance": 5.0,
+      "enabled": true,
+      "intensity": 0.004999999888241291,
+      "rotation_enabled": true,
       "rotation_max": 180.0,
       "rotation_min": -180.0,
-      "shift_amount": 0.5,
-      "shift_enabled": false,
-      "shift_speed": 1.0,
+      "shift_amount": 0.10000000149011612,
+      "shift_enabled": true,
+      "shift_speed": 2.1700000762939453,
       "speed": 0.0,
-      "x_enabled": false,
-      "y_enabled": false
+      "x_enabled": true,
+      "y_enabled": true
     },
     "sharpness": {
-      "amount": 1.0,
-      "enabled": false
+      "amount": 4.559999942779541,
+      "enabled": true
     }
   },
   "enabled": true,

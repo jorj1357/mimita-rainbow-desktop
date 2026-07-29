@@ -1,82 +1,23 @@
 {
   "effects": {
-    "blend_mode": {
-      "enabled": false,
-      "mode": "normal"
-    },
-    "chromatic_aberration": {
-      "amount": 9.999999747378752e-05,
+    "texture_breathing": {
       "enabled": true,
-      "fade_speed": 1.0
+      "strength": 0.15,
+      "speed": 0.3,
+      "scale": 2.0,
+      "noise_strength": 0.3
     },
-    "contrast": {
-      "amount": 1.0199999809265137,
-      "enabled": true
-    },
-    "edge_detect": {
-      "enabled": false
-    },
-    "glitch": {
-      "enabled": false,
-      "intensity": 0.05000000074505806
-    },
-    "glow": {
-      "distance": 0.30000001192092896,
-      "enabled": false,
-      "intensity": 0.30000001192092896,
-      "move_enabled": false,
-      "speed": 0.30000001192092896
-    },
-    "grayscale": {
-      "enabled": false
-    },
-    "hue": {
-      "amount": 0.0020000000949949026,
-      "b_enabled": true,
+    "pareidolia": {
       "enabled": true,
-      "g_enabled": true,
-      "max_speed": 0.0020000000949949026,
-      "min_speed": 0.0,
-      "mod_enabled": true,
-      "mod_speed": 1.0,
-      "r_enabled": true,
-      "speed": 0.0020000000949949026
-    },
-    "invert": {
-      "enabled": false
-    },
-    "motion_trail": {
-      "enabled": true,
-      "frames": 10,
-      "opacity": 0.0
-    },
-    "pixelate": {
-      "block_size": 0.10000000149011612,
-      "enabled": false
-    },
-    "saturation": {
-      "amount": 1.1200000047683716,
-      "enabled": true
-    },
-    "screen_wave": {
-      "distance": 5.0,
-      "enabled": true,
-      "intensity": 0.004999999888241291,
-      "rotation_enabled": true,
-      "rotation_max": 180.0,
-      "rotation_min": -180.0,
-      "shift_amount": 0.10000000149011612,
-      "shift_enabled": true,
-      "shift_speed": 2.1700000762939453,
-      "speed": 0.0,
-      "x_enabled": true,
-      "y_enabled": true
-    },
-    "sharpness": {
-      "amount": 1.5,
-      "enabled": true
+      "strength": 0.15,
+      "zone_count": 4,
+      "min_radius": 0.05,
+      "max_radius": 0.15,
+      "emergence_speed": 0.1,
+      "symmetry_strength": 0.15,
+      "contrast_strength": 0.1,
+      "debug_view": false
     }
   },
-  "enabled": true,
-  "panic_key": "ctrl+shift+alt+k"
+  "enabled": true
 }

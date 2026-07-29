@@ -1,5 +1,5 @@
 {
-  "window": { "width": 500, "height": 960 },
+  "window": { "width": 500, "height": 1200 },
   "controls": [
     { "id": "master", "type": "check", "label": "Effects_enabled.?", "x": 14, "y": 8 },
     { "type": "sep", "y": 36 },
@@ -36,6 +36,21 @@
     { "type": "sep", "y": 608 },
     { "id": "blend", "type": "combo", "label": "Blend Mode", "y": 620,
       "options": ["Normal","Additive","XNOR","Subtract","Multiply","Screen","Difference","Overlay","AND","OR"] },
-    { "type": "sep", "y": 652 }
+    { "type": "sep", "y": 652 },
+
+    { "id": "breathing", "type": "check", "label": "Texture Breathing", "x": 14, "y": 664 },
+    { "id": "breath_str", "type": "row", "label": "Breath Strength", "y": 688, "smax": 2, "def": 0.3 },
+    { "id": "breath_spd", "type": "row", "label": "Breath Speed", "y": 712, "smax": 2, "def": 0.5 },
+    { "id": "breath_scale", "type": "row", "label": "Breath Scale", "y": 736, "smax": 5, "def": 2 },
+    { "id": "breath_noise", "type": "row", "label": "Breath Noise", "y": 760, "smax": 2, "def": 0.5 },
+    { "type": "sep", "y": 788 },
+
+    { "id": "pareidolia", "type": "check", "label": "Pareidolia", "x": 14, "y": 800 },
+    { "id": "pareidolia_str", "type": "row", "label": "Pareidolia Strength", "y": 824, "smax": 2, "def": 0.3 },
+    { "id": "pareidolia_zones", "type": "row", "label": "Zone Count", "y": 848, "smax": 16, "def": 6 },
+    { "id": "pareidolia_emer", "type": "row", "label": "Emergence Speed", "y": 872, "smax": 2, "def": 0.15 },
+    { "id": "pareidolia_sym", "type": "row", "label": "Symmetry Strength", "y": 896, "smax": 2, "def": 0.3 },
+    { "id": "pareidolia_con", "type": "row", "label": "Contrast Strength", "y": 920, "smax": 2, "def": 0.2 },
+    { "id": "pareidolia_debug", "type": "check", "label": "Debug View", "x": 14, "y": 944 }
   ]
 }

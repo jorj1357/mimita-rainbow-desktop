@@ -245,6 +245,22 @@ static void WriteConfig() {
         // motion_trail frames (computed into g_trail_decay, no shader field)
         int tf = (int)GetEditValue("trail_frames");
         j["effects"]["motion_trail"]["frames"] = tf;
+
+        // Texture Breathing
+        j["effects"]["texture_breathing"]["enabled"] = GetCheckValue("breathing");
+        j["effects"]["texture_breathing"]["strength"] = GetEditValue("breath_str");
+        j["effects"]["texture_breathing"]["speed"] = GetEditValue("breath_spd");
+        j["effects"]["texture_breathing"]["scale"] = GetEditValue("breath_scale");
+        j["effects"]["texture_breathing"]["noise_strength"] = GetEditValue("breath_noise");
+
+        // Pareidolia
+        j["effects"]["pareidolia"]["enabled"] = GetCheckValue("pareidolia");
+        j["effects"]["pareidolia"]["strength"] = GetEditValue("pareidolia_str");
+        j["effects"]["pareidolia"]["zone_count"] = (int)GetEditValue("pareidolia_zones");
+        j["effects"]["pareidolia"]["emergence_speed"] = GetEditValue("pareidolia_emer");
+        j["effects"]["pareidolia"]["symmetry_strength"] = GetEditValue("pareidolia_sym");
+        j["effects"]["pareidolia"]["contrast_strength"] = GetEditValue("pareidolia_con");
+        j["effects"]["pareidolia"]["debug_view"] = GetCheckValue("pareidolia_debug");
 // @@GEN_WRITE_CONFIG_END@@
 
     // Override trail enabled from existing file if control is unchecked
@@ -743,6 +759,18 @@ static LRESULT CALLBACK SettingsWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
                 e["glow"]["speed"] = GetEditValue("glow_speed");
                 e["glow"]["distance"] = GetEditValue("glow_distance");
                 e["glow"]["move_enabled"] = GetCheckValue("glow_move");
+                e["texture_breathing"]["enabled"] = GetCheckValue("breathing");
+                e["texture_breathing"]["strength"] = GetEditValue("breath_str");
+                e["texture_breathing"]["speed"] = GetEditValue("breath_spd");
+                e["texture_breathing"]["scale"] = GetEditValue("breath_scale");
+                e["texture_breathing"]["noise_strength"] = GetEditValue("breath_noise");
+                e["pareidolia"]["enabled"] = GetCheckValue("pareidolia");
+                e["pareidolia"]["strength"] = GetEditValue("pareidolia_str");
+                e["pareidolia"]["zone_count"] = (int)GetEditValue("pareidolia_zones");
+                e["pareidolia"]["emergence_speed"] = GetEditValue("pareidolia_emer");
+                e["pareidolia"]["symmetry_strength"] = GetEditValue("pareidolia_sym");
+                e["pareidolia"]["contrast_strength"] = GetEditValue("pareidolia_con");
+                e["pareidolia"]["debug_view"] = GetCheckValue("pareidolia_debug");
                 j["effects"] = e;
                 if (SavePreset(name, j)) {
                     SetActivePreset(name);
@@ -796,6 +824,9 @@ static LRESULT CALLBACK SettingsWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
                     else if (f == "trail") setCheck(getEff("motion_trail","enabled", false));
                     else if (f == "glow") setCheck(getEff("glow","enabled", false));
                     else if (f == "glow_move") setCheck(getEff("glow","move_enabled", true));
+                    else if (f == "breathing") setCheck(getEff("texture_breathing","enabled", false));
+                    else if (f == "pareidolia") setCheck(getEff("pareidolia","enabled", false));
+                    else if (f == "pareidolia_debug") setCheck(getEff("pareidolia","debug_view", false));
                     else if (f == "blend" && GetClassNameStr(child).find("Combo") != std::string::npos) {
                         std::string mode = getEff("blend_mode","mode", std::string("normal"));
                         static const char* MODES[] = {"normal","additive","xnor","subtract","multiply","screen","difference","overlay","and","or"};
@@ -856,6 +887,15 @@ static LRESULT CALLBACK SettingsWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
                 setEdit("glow", getF("glow","intensity",0.3f));
                 setEdit("glow_speed", getF("glow","speed",0.3f));
                 setEdit("glow_distance", getF("glow","distance",0.3f));
+                setEdit("breath_str", getF("texture_breathing","strength",0.3f));
+                setEdit("breath_spd", getF("texture_breathing","speed",0.5f));
+                setEdit("breath_scale", getF("texture_breathing","scale",2.0f));
+                setEdit("breath_noise", getF("texture_breathing","noise_strength",0.5f));
+                setEdit("pareidolia_str", getF("pareidolia","strength",0.3f));
+                setInt("pareidolia_zones", getI("pareidolia","zone_count",6));
+                setEdit("pareidolia_emer", getF("pareidolia","emergence_speed",0.15f));
+                setEdit("pareidolia_sym", getF("pareidolia","symmetry_strength",0.3f));
+                setEdit("pareidolia_con", getF("pareidolia","contrast_strength",0.2f));
                 g_suppressWrites = false;
                 WriteConfig();
                 SetActivePreset(name);
@@ -963,7 +1003,39 @@ int ShowSettingsWindow(SettingsWindowParams* params) {
                 } else if (field == "trail_frames") {
                     wchar_t buf[32]; swprintf_s(buf, L"%d", existingCfg.trail_frames);
                     SetWindowTextW(child, buf);
-                }
+                } else if (field == "breathing")
+                    SendMessage(child, BM_SETCHECK, existingCfg.texture_breathing_enabled ? BST_CHECKED : BST_UNCHECKED, 0);
+                else if (field == "breath_str") {
+                    wchar_t buf[32]; swprintf_s(buf, L"%.3f", existingCfg.texture_breathing_strength);
+                    SetWindowTextW(child, buf);
+                } else if (field == "breath_spd") {
+                    wchar_t buf[32]; swprintf_s(buf, L"%.3f", existingCfg.texture_breathing_speed);
+                    SetWindowTextW(child, buf);
+                } else if (field == "breath_scale") {
+                    wchar_t buf[32]; swprintf_s(buf, L"%.3f", existingCfg.texture_breathing_scale);
+                    SetWindowTextW(child, buf);
+                } else if (field == "breath_noise") {
+                    wchar_t buf[32]; swprintf_s(buf, L"%.3f", existingCfg.texture_breathing_noise_strength);
+                    SetWindowTextW(child, buf);
+                } else if (field == "pareidolia")
+                    SendMessage(child, BM_SETCHECK, existingCfg.pareidolia_enabled ? BST_CHECKED : BST_UNCHECKED, 0);
+                else if (field == "pareidolia_str") {
+                    wchar_t buf[32]; swprintf_s(buf, L"%.3f", existingCfg.pareidolia_strength);
+                    SetWindowTextW(child, buf);
+                } else if (field == "pareidolia_zones") {
+                    wchar_t buf[32]; swprintf_s(buf, L"%d", existingCfg.pareidolia_zone_count);
+                    SetWindowTextW(child, buf);
+                } else if (field == "pareidolia_emer") {
+                    wchar_t buf[32]; swprintf_s(buf, L"%.3f", existingCfg.pareidolia_emergence_speed);
+                    SetWindowTextW(child, buf);
+                } else if (field == "pareidolia_sym") {
+                    wchar_t buf[32]; swprintf_s(buf, L"%.3f", existingCfg.pareidolia_symmetry_strength);
+                    SetWindowTextW(child, buf);
+                } else if (field == "pareidolia_con") {
+                    wchar_t buf[32]; swprintf_s(buf, L"%.3f", existingCfg.pareidolia_contrast_strength);
+                    SetWindowTextW(child, buf);
+                } else if (field == "pareidolia_debug")
+                    SendMessage(child, BM_SETCHECK, existingCfg.pareidolia_debug_view ? BST_CHECKED : BST_UNCHECKED, 0);
                 child = GetNextWindow(child, GW_HWNDNEXT);
             }
             g_suppressWrites = false;
@@ -1006,6 +1078,9 @@ int ShowSettingsWindow(SettingsWindowParams* params) {
                     else if (f == "trail") setC(pj["effects"].value("motion_trail", json::object()).value("enabled", false));
                     else if (f == "glow") setC(pj["effects"].value("glow", json::object()).value("enabled", false));
                     else if (f == "glow_move") setC(pj["effects"].value("glow", json::object()).value("move_enabled", true));
+                    else if (f == "breathing") setC(pj["effects"].value("texture_breathing", json::object()).value("enabled", false));
+                    else if (f == "pareidolia") setC(pj["effects"].value("pareidolia", json::object()).value("enabled", false));
+                    else if (f == "pareidolia_debug") setC(pj["effects"].value("pareidolia", json::object()).value("debug_view", false));
                     else if (f == "blend" && GetClassNameStr(child).find("Combo") != std::string::npos) {
                         std::string mode = pj["effects"].value("blend_mode", json::object()).value("mode", std::string("normal"));
                         static const char* MODES[] = {"normal","additive","xnor","subtract","multiply","screen","difference","overlay","and","or"};
@@ -1056,6 +1131,15 @@ int ShowSettingsWindow(SettingsWindowParams* params) {
                 setE("glow", gF("glow","intensity",0.3f));
                 setE("glow_speed", gF("glow","speed",0.3f));
                 setE("glow_distance", gF("glow","distance",0.3f));
+                setE("breath_str", gF("texture_breathing","strength",0.3f));
+                setE("breath_spd", gF("texture_breathing","speed",0.5f));
+                setE("breath_scale", gF("texture_breathing","scale",2.0f));
+                setE("breath_noise", gF("texture_breathing","noise_strength",0.5f));
+                setE("pareidolia_str", gF("pareidolia","strength",0.3f));
+                setE("pareidolia_zones", gF("pareidolia","zone_count",6));
+                setE("pareidolia_emer", gF("pareidolia","emergence_speed",0.15f));
+                setE("pareidolia_sym", gF("pareidolia","symmetry_strength",0.3f));
+                setE("pareidolia_con", gF("pareidolia","contrast_strength",0.2f));
                 g_suppressWrites = false;
                 WriteConfig();
                 RefreshPresetDropdown();
