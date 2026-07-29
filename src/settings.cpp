@@ -670,10 +670,18 @@ static void ScrollTo(int newY) {
     int visH = cl.bottom - cl.top;
     int maxY = max(g_contentHeight - visH, 0);
     newY = max(0, min(newY, maxY));
+    if (newY == g_scrollY) return;
     int delta = g_scrollY - newY;
-    if (delta == 0) return;
     g_scrollY = newY;
-    ScrollWindowEx(g_hwnd, 0, delta, NULL, NULL, NULL, NULL, (UINT)(SW_SCROLLCHILDREN | SW_INVALIDATE));
+    // Move every child window by the scroll delta
+    HWND child = GetWindow(g_hwnd, GW_CHILD);
+    while (child) {
+        RECT r; GetWindowRect(child, &r);
+        MapWindowPoints(HWND_DESKTOP, g_hwnd, (POINT*)&r, 2);
+        SetWindowPos(child, NULL, r.left, r.top + delta, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+        child = GetNextWindow(child, GW_HWNDNEXT);
+    }
+    InvalidateRect(g_hwnd, NULL, TRUE);
     SetScrollPos(g_hwnd, SB_VERT, g_scrollY, TRUE);
 }
 
