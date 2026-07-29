@@ -135,6 +135,36 @@ float4 ps_main(VSOutput input) : SV_TARGET {
         float3 gy=tl+2*t+tr-bl-2*b-br;
         color=sqrt(gx*gx+gy*gy);
     }
+    // --- glow / bloom ---
+    if (g_glow_enabled) {
+        float2 px = 1.0 / max(float2(1920, 1080), 1.0);
+        float spread = max(g_glow_distance, 0.001) * 4.0;
+        float3 glow = 0;
+        float wt = 0;
+        for (int i = 0; i < 8; i++) {
+            float ang = (float)i * 3.141593 * 0.25;
+            float2 off = float2(cos(ang), sin(ang)) * px * spread;
+            float3 s = g_texture.Sample(g_sampler, uv + off).rgb;
+            float b = max(s.r, max(s.g, s.b));
+            float w = max(b - 0.15, 0);
+            glow += s * w;
+            wt += w;
+        }
+        if (wt > 0.001) {
+            glow /= wt;
+            float breathe = 1.0;
+            if (g_glow_speed > 0.0)
+                breathe = 0.5 + 0.5 * sin(g_time * g_glow_speed * 0.5);
+            float3 glowColor = glow * g_glow_intensity * breathe;
+            if (g_glow_move_enabled) {
+                float2 drift = float2(sin(g_time * 0.3), cos(g_time * 0.2)) * spread * 0.01 * px;
+                float3 driftSample = g_texture.Sample(g_sampler, uv + drift).rgb;
+                glowColor += driftSample * g_glow_intensity * breathe * 0.3;
+            }
+            color = saturate(color + glowColor);
+        }
+    }
+
     if (g_blend_enabled > 0) {
         float3 b = g_texture.Sample(g_sampler, uv).rgb;
         [branch]

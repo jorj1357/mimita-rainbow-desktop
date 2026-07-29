@@ -53,9 +53,9 @@ bool CompileShaders(ID3D11Device* device, CompiledShaders& out) {
     temporal_blob->Release();
     if (FAILED(hr)) { Log::HR("CreateTemporalPS", hr); return false; }
 
-    // Constant buffer (main) — must match HLSL cbuffer size (16-byte aligned)
+    // Constant buffer (main) — must match HLSL cbuffer size (13 × 16 = 208)
     D3D11_BUFFER_DESC cb = {};
-    cb.ByteWidth = 192; cb.Usage = D3D11_USAGE_DYNAMIC;
+    cb.ByteWidth = 208; cb.Usage = D3D11_USAGE_DYNAMIC;
     cb.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     cb.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     hr = device->CreateBuffer(&cb, nullptr, &out.constant_buffer);
