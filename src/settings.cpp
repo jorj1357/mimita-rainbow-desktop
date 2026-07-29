@@ -610,7 +610,7 @@ void RefreshPresetDropdown() {
 }
 
 static void CreatePresetControls(HWND parent) {
-    int y = 720;
+    int y = 1170;
     CreateWindowW(L"STATIC", L"", WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ,
         10, y, 470, 2, parent, nullptr, nullptr, nullptr);
     y += 10;
@@ -1239,7 +1239,7 @@ int ShowSettingsWindow(SettingsWindowParams* params) {
         }
     }
 
-    g_contentHeight = 1200;
+    g_contentHeight = 1300;
     UpdateScrollRange();
     ShowWindow(hwnd, SW_SHOW);
     RedrawWindow(hwnd, NULL, NULL, RDW_ERASE | RDW_INVALIDATE | RDW_ALLCHILDREN);
