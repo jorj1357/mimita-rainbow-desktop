@@ -500,11 +500,16 @@ static LRESULT CALLBACK PresetNameDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LP
     if (msg == WM_CREATE) {
         CreateWindowExW(WS_EX_CLIENTEDGE, L"EDIT", L"",
             WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL,
-            10, 8, 260, 22, hwnd, (HMENU)100, nullptr, nullptr);
-        CreateWindowW(L"BUTTON", L"Save", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
-            120, 38, 70, 24, hwnd, (HMENU)IDOK, nullptr, nullptr);
-        CreateWindowW(L"BUTTON", L"Cancel", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-            200, 38, 70, 24, hwnd, (HMENU)IDCANCEL, nullptr, nullptr);
+            10, 12, 260, 22, hwnd, (HMENU)100, nullptr, nullptr);
+        HWND save = CreateWindowW(L"BUTTON", L"Save", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+            70, 48, 70, 26, hwnd, (HMENU)IDOK, nullptr, nullptr);
+        HWND cancel = CreateWindowW(L"BUTTON", L"Cancel", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+            150, 48, 70, 26, hwnd, (HMENU)IDCANCEL, nullptr, nullptr);
+        if (g_font) {
+            SendMessage(GetWindow(hwnd, GW_CHILD), WM_SETFONT, (WPARAM)g_font, TRUE);
+            SendMessage(save, WM_SETFONT, (WPARAM)g_font, TRUE);
+            SendMessage(cancel, WM_SETFONT, (WPARAM)g_font, TRUE);
+        }
         return 0;
     }
     if (msg == WM_COMMAND) {
@@ -544,7 +549,7 @@ static std::string PromptForPresetName(HWND parent) {
 
     HWND dlg = CreateWindowExW(WS_EX_DLGMODALFRAME, L"PresetNameDlgClass", L"Save Preset",
         WS_CAPTION | WS_SYSMENU | WS_VISIBLE,
-        x, y, 280, 80, parent, nullptr, wc.hInstance, nullptr);
+        x, y, 280, 110, parent, nullptr, wc.hInstance, nullptr);
     if (!dlg) { UnregisterClassW(L"PresetNameDlgClass", wc.hInstance); return ""; }
 
     EnableWindow(parent, FALSE);
