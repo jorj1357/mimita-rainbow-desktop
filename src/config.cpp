@@ -117,8 +117,10 @@ bool LoadConfig(const std::string& path, AppConfig& cfg) {
         cfg.pareidolia_enabled = gb("pareidolia","enabled", false);
         cfg.pareidolia_strength = gb("pareidolia","strength", 0.3f);
         cfg.pareidolia_zone_count = (int)gb("pareidolia","zone_count", 6);
-        cfg.pareidolia_min_radius = gb("pareidolia","min_radius", 0.05f);
-        cfg.pareidolia_max_radius = gb("pareidolia","max_radius", 0.2f);
+        cfg.pareidolia_min_radius = gb("pareidolia","min_radius", 0.03f);
+        cfg.pareidolia_max_radius = gb("pareidolia","max_radius", 0.3f);
+        cfg.pareidolia_drift_speed = gb("pareidolia","drift_speed", 0.3f);
+        cfg.pareidolia_drift_amount = gb("pareidolia","drift_amount", 0.15f);
         cfg.pareidolia_emergence_speed = gb("pareidolia","emergence_speed", 0.15f);
         cfg.pareidolia_symmetry_strength = gb("pareidolia","symmetry_strength", 0.3f);
         cfg.pareidolia_contrast_strength = gb("pareidolia","contrast_strength", 0.2f);

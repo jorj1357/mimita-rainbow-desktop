@@ -36,7 +36,7 @@ cbuffer Constants : register(b0) {
     int g_texture_breathing_enabled; float g_texture_breathing_strength; float g_texture_breathing_speed; float g_texture_breathing_scale;
     float g_texture_breathing_noise_strength; int g_pareidolia_enabled; float g_pareidolia_strength; int g_pareidolia_zone_count;
     float g_pareidolia_min_radius; float g_pareidolia_max_radius; float g_pareidolia_emergence_speed; float g_pareidolia_symmetry_strength;
-    float g_pareidolia_contrast_strength; int g_pareidolia_debug_view; int g_pad3; int g_pad4;
+    float g_pareidolia_contrast_strength; int g_pareidolia_debug_view; float g_pareidolia_drift_speed; float g_pareidolia_drift_amount;
 };
 // @@GEN_HLSL_CBUFFER_END@@
 float3 rgb2hsv(float3 c) {
@@ -93,7 +93,12 @@ PareidoliaZone getZone(int idx, float t) {
     PareidoliaZone z;
     float seed = (float)idx * 7.137 + floor(t * g_pareidolia_emergence_speed) * 1.317;
     float2 s2 = float2(seed, seed * 3.731);
-    z.center = float2(hash21(s2), hash21(s2 + 1));
+    float2 baseCenter = float2(hash21(s2), hash21(s2 + 1));
+    float2 drift = float2(
+        smoothNoise(s2 + t * g_pareidolia_drift_speed * 0.1, 0) * g_pareidolia_drift_amount * 0.3,
+        smoothNoise(s2 + t * g_pareidolia_drift_speed * 0.1 + 100, 0) * g_pareidolia_drift_amount * 0.3
+    );
+    z.center = frac(baseCenter + drift);
     z.radius = lerp(g_pareidolia_min_radius, g_pareidolia_max_radius, hash21(s2 + 2));
     z.rotation = hash21(s2 + 3) * 6.2832;
     float eyeSpread = z.radius * lerp(0.2, 0.35, hash21(s2 + 4));
@@ -401,8 +406,8 @@ struct ShaderConstants {
     float g_pareidolia_symmetry_strength;
     float g_pareidolia_contrast_strength;
     int g_pareidolia_debug_view;
-    int g_pad3;
-    int g_pad4;
+    float g_pareidolia_drift_speed;
+    float g_pareidolia_drift_amount;
 };
 
 static_assert(sizeof(ShaderConstants) <= 512, "ShaderConstants too large for HLSL cbuffer");
@@ -470,6 +475,8 @@ static_assert(offsetof(ShaderConstants, g_pareidolia_emergence_speed) == 240, "g
 static_assert(offsetof(ShaderConstants, g_pareidolia_symmetry_strength) == 244, "g_pareidolia_symmetry_strength offset mismatch");
 static_assert(offsetof(ShaderConstants, g_pareidolia_contrast_strength) == 248, "g_pareidolia_contrast_strength offset mismatch");
 static_assert(offsetof(ShaderConstants, g_pareidolia_debug_view) == 252, "g_pareidolia_debug_view offset mismatch");
+static_assert(offsetof(ShaderConstants, g_pareidolia_drift_speed) == 256, "g_pareidolia_drift_speed offset mismatch");
+static_assert(offsetof(ShaderConstants, g_pareidolia_drift_amount) == 260, "g_pareidolia_drift_amount offset mismatch");
 // @@GEN_SHADER_STRUCT_END@@
 
 static const char* TEMPORAL_PS_SRC = R"(

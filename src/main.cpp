@@ -155,7 +155,8 @@ static DWORD WINAPI OverlayThread(LPVOID param) {
         c.g_pareidolia_symmetry_strength = cfg.pareidolia_symmetry_strength;
         c.g_pareidolia_contrast_strength = cfg.pareidolia_contrast_strength;
         c.g_pareidolia_debug_view = cfg.pareidolia_debug_view ? 1 : 0;
-        c.g_pad3 = 0; c.g_pad4 = 0;
+        c.g_pareidolia_drift_speed = cfg.pareidolia_drift_speed;
+        c.g_pareidolia_drift_amount = cfg.pareidolia_drift_amount;
 // @@GEN_POPULATE_SHADER_END@@
 
         renderer.SetShaderConstants(c);

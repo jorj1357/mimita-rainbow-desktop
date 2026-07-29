@@ -51,13 +51,17 @@
       "opacity": 0.0
     },
     "pareidolia": {
-      "contrast_strength": 2.0,
+      "contrast_strength": 0.20000000298023224,
       "debug_view": false,
-      "emergence_speed": 1.0099999904632568,
-      "enabled": true,
-      "strength": 1.2999999523162842,
-      "symmetry_strength": 2.0,
-      "zone_count": 16
+      "drift_amount": 0.15000000596046448,
+      "drift_speed": 0.30000001192092896,
+      "emergence_speed": 0.15000000596046448,
+      "enabled": false,
+      "max_radius": 0.30000001192092896,
+      "min_radius": 0.029999999329447746,
+      "strength": 0.30000001192092896,
+      "symmetry_strength": 0.30000001192092896,
+      "zone_count": 6
     },
     "pixelate": {
       "block_size": 8.0,
@@ -87,7 +91,7 @@
     },
     "stop_motion": {
       "capture_interval": 1,
-      "decay_multiplier": 0.009999999776482582
+      "decay_multiplier": 0.5
     },
     "texture_breathing": {
       "enabled": false,

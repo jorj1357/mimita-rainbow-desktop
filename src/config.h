@@ -47,8 +47,10 @@ struct AppConfig {
     bool pareidolia_enabled = false;
     float pareidolia_strength = 0.3f;
     int pareidolia_zone_count = 6;
-    float pareidolia_min_radius = 0.05f;
-    float pareidolia_max_radius = 0.2f;
+    float pareidolia_min_radius = 0.03f;
+    float pareidolia_max_radius = 0.3f;
+    float pareidolia_drift_speed = 0.3f;
+    float pareidolia_drift_amount = 0.15f;
     float pareidolia_emergence_speed = 0.15f;
     float pareidolia_symmetry_strength = 0.3f;
     float pareidolia_contrast_strength = 0.2f;

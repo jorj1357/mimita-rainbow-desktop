@@ -248,15 +248,19 @@ static void WriteConfig() {
 
         // Texture Breathing
         j["effects"]["texture_breathing"]["enabled"] = GetCheckValue("breathing");
-        j["effects"]["texture_breathing"]["strength"] = GetEditValue("breath_str");
+        j["effects"]["texture_breathing"]["strength"] = GetEditValue("breath_intensity");
         j["effects"]["texture_breathing"]["speed"] = GetEditValue("breath_spd");
         j["effects"]["texture_breathing"]["scale"] = GetEditValue("breath_scale");
         j["effects"]["texture_breathing"]["noise_strength"] = GetEditValue("breath_noise");
 
         // Pareidolia
         j["effects"]["pareidolia"]["enabled"] = GetCheckValue("pareidolia");
-        j["effects"]["pareidolia"]["strength"] = GetEditValue("pareidolia_str");
+        j["effects"]["pareidolia"]["strength"] = GetEditValue("pareidolia_intensity");
         j["effects"]["pareidolia"]["zone_count"] = (int)GetEditValue("pareidolia_zones");
+        j["effects"]["pareidolia"]["min_radius"] = GetEditValue("pareidolia_minrad");
+        j["effects"]["pareidolia"]["max_radius"] = GetEditValue("pareidolia_maxrad");
+        j["effects"]["pareidolia"]["drift_speed"] = GetEditValue("pareidolia_driftspd");
+        j["effects"]["pareidolia"]["drift_amount"] = GetEditValue("pareidolia_driftamt");
         j["effects"]["pareidolia"]["emergence_speed"] = GetEditValue("pareidolia_emer");
         j["effects"]["pareidolia"]["symmetry_strength"] = GetEditValue("pareidolia_sym");
         j["effects"]["pareidolia"]["contrast_strength"] = GetEditValue("pareidolia_con");
@@ -760,13 +764,17 @@ static LRESULT CALLBACK SettingsWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
                 e["glow"]["distance"] = GetEditValue("glow_distance");
                 e["glow"]["move_enabled"] = GetCheckValue("glow_move");
                 e["texture_breathing"]["enabled"] = GetCheckValue("breathing");
-                e["texture_breathing"]["strength"] = GetEditValue("breath_str");
+                e["texture_breathing"]["strength"] = GetEditValue("breath_intensity");
                 e["texture_breathing"]["speed"] = GetEditValue("breath_spd");
                 e["texture_breathing"]["scale"] = GetEditValue("breath_scale");
                 e["texture_breathing"]["noise_strength"] = GetEditValue("breath_noise");
                 e["pareidolia"]["enabled"] = GetCheckValue("pareidolia");
-                e["pareidolia"]["strength"] = GetEditValue("pareidolia_str");
+                e["pareidolia"]["strength"] = GetEditValue("pareidolia_intensity");
                 e["pareidolia"]["zone_count"] = (int)GetEditValue("pareidolia_zones");
+                e["pareidolia"]["min_radius"] = GetEditValue("pareidolia_minrad");
+                e["pareidolia"]["max_radius"] = GetEditValue("pareidolia_maxrad");
+                e["pareidolia"]["drift_speed"] = GetEditValue("pareidolia_driftspd");
+                e["pareidolia"]["drift_amount"] = GetEditValue("pareidolia_driftamt");
                 e["pareidolia"]["emergence_speed"] = GetEditValue("pareidolia_emer");
                 e["pareidolia"]["symmetry_strength"] = GetEditValue("pareidolia_sym");
                 e["pareidolia"]["contrast_strength"] = GetEditValue("pareidolia_con");
@@ -827,6 +835,7 @@ static LRESULT CALLBACK SettingsWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
                     else if (f == "breathing") setCheck(getEff("texture_breathing","enabled", false));
                     else if (f == "pareidolia") setCheck(getEff("pareidolia","enabled", false));
                     else if (f == "pareidolia_debug") setCheck(getEff("pareidolia","debug_view", false));
+                    else if (f == "pareidolia_intensity") setCheck(false); // not a checkbox
                     else if (f == "blend" && GetClassNameStr(child).find("Combo") != std::string::npos) {
                         std::string mode = getEff("blend_mode","mode", std::string("normal"));
                         static const char* MODES[] = {"normal","additive","xnor","subtract","multiply","screen","difference","overlay","and","or"};
@@ -887,12 +896,16 @@ static LRESULT CALLBACK SettingsWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
                 setEdit("glow", getF("glow","intensity",0.3f));
                 setEdit("glow_speed", getF("glow","speed",0.3f));
                 setEdit("glow_distance", getF("glow","distance",0.3f));
-                setEdit("breath_str", getF("texture_breathing","strength",0.3f));
+                setEdit("breath_intensity", getF("texture_breathing","strength",0.3f));
                 setEdit("breath_spd", getF("texture_breathing","speed",0.5f));
                 setEdit("breath_scale", getF("texture_breathing","scale",2.0f));
                 setEdit("breath_noise", getF("texture_breathing","noise_strength",0.5f));
-                setEdit("pareidolia_str", getF("pareidolia","strength",0.3f));
+                setEdit("pareidolia_intensity", getF("pareidolia","strength",0.3f));
                 setInt("pareidolia_zones", getI("pareidolia","zone_count",6));
+                setEdit("pareidolia_minrad", getF("pareidolia","min_radius",0.03f));
+                setEdit("pareidolia_maxrad", getF("pareidolia","max_radius",0.3f));
+                setEdit("pareidolia_driftspd", getF("pareidolia","drift_speed",0.3f));
+                setEdit("pareidolia_driftamt", getF("pareidolia","drift_amount",0.15f));
                 setEdit("pareidolia_emer", getF("pareidolia","emergence_speed",0.15f));
                 setEdit("pareidolia_sym", getF("pareidolia","symmetry_strength",0.3f));
                 setEdit("pareidolia_con", getF("pareidolia","contrast_strength",0.2f));
@@ -1005,7 +1018,7 @@ int ShowSettingsWindow(SettingsWindowParams* params) {
                     SetWindowTextW(child, buf);
                 } else if (field == "breathing")
                     SendMessage(child, BM_SETCHECK, existingCfg.texture_breathing_enabled ? BST_CHECKED : BST_UNCHECKED, 0);
-                else if (field == "breath_str") {
+                else if (field == "breath_intensity") {
                     wchar_t buf[32]; swprintf_s(buf, L"%.3f", existingCfg.texture_breathing_strength);
                     SetWindowTextW(child, buf);
                 } else if (field == "breath_spd") {
@@ -1019,11 +1032,23 @@ int ShowSettingsWindow(SettingsWindowParams* params) {
                     SetWindowTextW(child, buf);
                 } else if (field == "pareidolia")
                     SendMessage(child, BM_SETCHECK, existingCfg.pareidolia_enabled ? BST_CHECKED : BST_UNCHECKED, 0);
-                else if (field == "pareidolia_str") {
+                else if (field == "pareidolia_intensity") {
                     wchar_t buf[32]; swprintf_s(buf, L"%.3f", existingCfg.pareidolia_strength);
                     SetWindowTextW(child, buf);
                 } else if (field == "pareidolia_zones") {
                     wchar_t buf[32]; swprintf_s(buf, L"%d", existingCfg.pareidolia_zone_count);
+                    SetWindowTextW(child, buf);
+                } else if (field == "pareidolia_minrad") {
+                    wchar_t buf[32]; swprintf_s(buf, L"%.3f", existingCfg.pareidolia_min_radius);
+                    SetWindowTextW(child, buf);
+                } else if (field == "pareidolia_maxrad") {
+                    wchar_t buf[32]; swprintf_s(buf, L"%.3f", existingCfg.pareidolia_max_radius);
+                    SetWindowTextW(child, buf);
+                } else if (field == "pareidolia_driftspd") {
+                    wchar_t buf[32]; swprintf_s(buf, L"%.3f", existingCfg.pareidolia_drift_speed);
+                    SetWindowTextW(child, buf);
+                } else if (field == "pareidolia_driftamt") {
+                    wchar_t buf[32]; swprintf_s(buf, L"%.3f", existingCfg.pareidolia_drift_amount);
                     SetWindowTextW(child, buf);
                 } else if (field == "pareidolia_emer") {
                     wchar_t buf[32]; swprintf_s(buf, L"%.3f", existingCfg.pareidolia_emergence_speed);
@@ -1131,12 +1156,16 @@ int ShowSettingsWindow(SettingsWindowParams* params) {
                 setE("glow", gF("glow","intensity",0.3f));
                 setE("glow_speed", gF("glow","speed",0.3f));
                 setE("glow_distance", gF("glow","distance",0.3f));
-                setE("breath_str", gF("texture_breathing","strength",0.3f));
+                setE("breath_intensity", gF("texture_breathing","strength",0.3f));
                 setE("breath_spd", gF("texture_breathing","speed",0.5f));
                 setE("breath_scale", gF("texture_breathing","scale",2.0f));
                 setE("breath_noise", gF("texture_breathing","noise_strength",0.5f));
-                setE("pareidolia_str", gF("pareidolia","strength",0.3f));
+                setE("pareidolia_intensity", gF("pareidolia","strength",0.3f));
                 setE("pareidolia_zones", gF("pareidolia","zone_count",6));
+                setE("pareidolia_minrad", gF("pareidolia","min_radius",0.03f));
+                setE("pareidolia_maxrad", gF("pareidolia","max_radius",0.3f));
+                setE("pareidolia_driftspd", gF("pareidolia","drift_speed",0.3f));
+                setE("pareidolia_driftamt", gF("pareidolia","drift_amount",0.15f));
                 setE("pareidolia_emer", gF("pareidolia","emergence_speed",0.15f));
                 setE("pareidolia_sym", gF("pareidolia","symmetry_strength",0.3f));
                 setE("pareidolia_con", gF("pareidolia","contrast_strength",0.2f));
