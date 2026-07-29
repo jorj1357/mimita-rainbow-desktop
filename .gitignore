@@ -1,4 +1,7 @@
-.obj
+# Build artifacts
 *.obj
 
+# Runtime logs and generated diagnostic output
 logs/
+*.log
+output_window_log*.txt
