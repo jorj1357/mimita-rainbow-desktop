@@ -11,8 +11,8 @@
       "mode": "off"
     },
     "contrast": {
-      "amount": 1.0,
-      "enabled": false
+      "amount": 1.2400000095367432,
+      "enabled": true
     },
     "edge_detect": {
       "enabled": false
@@ -26,7 +26,7 @@
     },
     "hue": {
       "amount": 0.6700000166893005,
-      "enabled": true,
+      "enabled": false,
       "speed": 0.6700000166893005
     },
     "invert": {
@@ -42,8 +42,8 @@
       "enabled": false
     },
     "saturation": {
-      "amount": 1.0,
-      "enabled": false
+      "amount": 5.0,
+      "enabled": true
     },
     "screen_wave": {
       "enabled": false,

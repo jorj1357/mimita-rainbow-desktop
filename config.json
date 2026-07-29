@@ -7,8 +7,7 @@
     "chromatic_aberration": {
       "amount": 0.003000000026077032,
       "enabled": false,
-      "fade_speed": 1.0,
-      "mode": "off"
+      "fade_speed": 1.0
     },
     "contrast": {
       "amount": 1.0,
@@ -21,12 +20,26 @@
       "enabled": false,
       "intensity": 0.05000000074505806
     },
+    "glow": {
+      "distance": 0.30000001192092896,
+      "enabled": false,
+      "intensity": 0.30000001192092896,
+      "move_enabled": false,
+      "speed": 0.30000001192092896
+    },
     "grayscale": {
       "enabled": false
     },
     "hue": {
       "amount": 0.6700000166893005,
+      "b_enabled": false,
       "enabled": false,
+      "g_enabled": false,
+      "max_speed": 10.0,
+      "min_speed": 0.0,
+      "mod_enabled": false,
+      "mod_speed": 1.0,
+      "r_enabled": false,
       "speed": 0.6700000166893005
     },
     "invert": {
@@ -35,7 +48,7 @@
     "motion_trail": {
       "enabled": false,
       "frames": 10,
-      "opacity": 0.5
+      "opacity": 0.0
     },
     "pixelate": {
       "block_size": 8.0,
@@ -46,13 +59,26 @@
       "enabled": false
     },
     "screen_wave": {
+      "distance": 1.0,
       "enabled": false,
       "intensity": 0.019999999552965164,
-      "speed": 0.5
+      "rotation_enabled": false,
+      "rotation_max": 180.0,
+      "rotation_min": -180.0,
+      "shift_amount": 0.5,
+      "shift_enabled": false,
+      "shift_speed": 1.0,
+      "speed": 0.0,
+      "x_enabled": false,
+      "y_enabled": false
     },
     "sharpness": {
       "amount": 1.0,
       "enabled": false
+    },
+    "stop_motion": {
+      "capture_interval": 1,
+      "decay_multiplier": 0.0
     }
   },
   "enabled": true,
