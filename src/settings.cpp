@@ -26,6 +26,8 @@ static std::atomic<bool>* g_overlayRunning = nullptr;
 static bool g_suppressWrites = false;
 static bool g_stopMotionReady = false;
 static HWND g_presetCombo = nullptr;
+static int g_scrollY = 0;
+static int g_contentHeight = 700;
 
 static HFONT g_font = nullptr;
 static HBRUSH g_blackBrush = nullptr;
@@ -497,6 +499,8 @@ static void CreateControls(HWND parent) {
 
 static void CreatePresetControls(HWND parent);
 void RefreshPresetDropdown();
+static void UpdateScrollRange();
+static void ScrollTo(int newY);
 
 static void RebuildControls() {
     HWND child = GetWindow(g_hwnd, GW_CHILD);
@@ -508,9 +512,12 @@ static void RebuildControls() {
         DestroyWindow(child);
         child = next;
     }
+    g_scrollY = 0;
+    SetScrollPos(g_hwnd, SB_VERT, 0, FALSE);
     ParseLayout(g_layoutPath, g_layout);
     CreateControls(g_hwnd);
     CreatePresetControls(g_hwnd);
+    UpdateScrollRange();
 }
 
 // ── Preset save dialog ──
@@ -645,6 +652,31 @@ static bool IsValidPresetName(const std::string& name) {
     return true;
 }
 
+static void UpdateScrollRange() {
+    RECT cl; GetClientRect(g_hwnd, &cl);
+    int visH = cl.bottom - cl.top;
+    if (g_contentHeight > visH) {
+        SCROLLINFO si = {sizeof(si), SIF_PAGE | SIF_RANGE, 0, g_contentHeight - 1, visH, 0};
+        SetScrollInfo(g_hwnd, SB_VERT, &si, TRUE);
+        ShowScrollBar(g_hwnd, SB_VERT, TRUE);
+    } else {
+        ShowScrollBar(g_hwnd, SB_VERT, FALSE);
+        g_scrollY = 0;
+    }
+}
+
+static void ScrollTo(int newY) {
+    RECT cl; GetClientRect(g_hwnd, &cl);
+    int visH = cl.bottom - cl.top;
+    int maxY = max(g_contentHeight - visH, 0);
+    newY = max(0, min(newY, maxY));
+    int delta = g_scrollY - newY;
+    if (delta == 0) return;
+    g_scrollY = newY;
+    ScrollWindowEx(g_hwnd, 0, delta, NULL, NULL, NULL, NULL, (UINT)(SW_SCROLLCHILDREN | SW_INVALIDATE));
+    SetScrollPos(g_hwnd, SB_VERT, g_scrollY, TRUE);
+}
+
 static LRESULT CALLBACK SettingsWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     if (msg == WM_CREATE) {
         g_hwnd = hwnd;
@@ -672,6 +704,29 @@ static LRESULT CALLBACK SettingsWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
     }
     if (msg == WM_HOTKEY && wParam == 2) {
         if (g_overlayRunning) *g_overlayRunning = false;
+        return 0;
+    }
+    if (msg == WM_VSCROLL) {
+        int newY = g_scrollY;
+        switch (LOWORD(wParam)) {
+            case SB_TOP: newY = 0; break;
+            case SB_BOTTOM: newY = g_contentHeight; break;
+            case SB_LINEUP: newY -= 20; break;
+            case SB_LINEDOWN: newY += 20; break;
+            case SB_PAGEUP: newY -= 100; break;
+            case SB_PAGEDOWN: newY += 100; break;
+            case SB_THUMBTRACK: newY = HIWORD(wParam); break;
+        }
+        ScrollTo(newY);
+        return 0;
+    }
+    if (msg == WM_MOUSEWHEEL) {
+        int delta = GET_WHEEL_DELTA_WPARAM(wParam);
+        ScrollTo(g_scrollY - delta / 120 * 40);
+        return 0;
+    }
+    if (msg == WM_SIZE) {
+        UpdateScrollRange();
         return 0;
     }
     if (msg == WM_TIMER && wParam == 1) {
@@ -978,7 +1033,7 @@ int ShowSettingsWindow(SettingsWindowParams* params) {
     }
 
     HWND hwnd = CreateWindowExW(0, L"DesktopFXSettingsClass", L"Desktop FX",
-        WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+        WS_OVERLAPPEDWINDOW | WS_VSCROLL | WS_VISIBLE,
         CW_USEDEFAULT, CW_USEDEFAULT, winW, winH,
         nullptr, nullptr, params->hInstance, nullptr);
     if (!hwnd) return 1;
@@ -1176,6 +1231,8 @@ int ShowSettingsWindow(SettingsWindowParams* params) {
         }
     }
 
+    g_contentHeight = 1200;
+    UpdateScrollRange();
     ShowWindow(hwnd, SW_SHOW);
     RedrawWindow(hwnd, NULL, NULL, RDW_ERASE | RDW_INVALIDATE | RDW_ALLCHILDREN);
 

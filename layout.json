@@ -1,5 +1,5 @@
 {
-  "window": { "width": 500, "height": 1200 },
+  "window": { "width": 500, "height": 700 },
   "controls": [
     { "id": "master", "type": "check", "label": "Effects_enabled.?", "x": 14, "y": 8 },
     { "type": "sep", "y": 36 },
