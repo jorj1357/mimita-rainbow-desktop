@@ -5,13 +5,13 @@
       "mode": "normal"
     },
     "chromatic_aberration": {
-      "amount": 0.0,
-      "enabled": true,
+      "amount": 0.003000000026077032,
+      "enabled": false,
       "fade_speed": 1.0
     },
     "contrast": {
-      "amount": 1.0199999809265137,
-      "enabled": true
+      "amount": 1.0,
+      "enabled": false
     },
     "edge_detect": {
       "enabled": false
@@ -31,16 +31,16 @@
       "enabled": false
     },
     "hue": {
-      "amount": 0.0020000000949949026,
-      "b_enabled": true,
-      "enabled": true,
-      "g_enabled": true,
-      "max_speed": 0.0020000000949949026,
+      "amount": 0.6700000166893005,
+      "b_enabled": false,
+      "enabled": false,
+      "g_enabled": false,
+      "max_speed": 10.0,
       "min_speed": 0.0,
-      "mod_enabled": true,
+      "mod_enabled": false,
       "mod_speed": 1.0,
-      "r_enabled": true,
-      "speed": 0.0020000000949949026
+      "r_enabled": false,
+      "speed": 0.6700000166893005
     },
     "invert": {
       "enabled": false
@@ -51,34 +51,30 @@
       "opacity": 0.0
     },
     "pixelate": {
-      "block_size": 0.10000000149011612,
+      "block_size": 8.0,
       "enabled": false
     },
     "saturation": {
-      "amount": 1.1200000047683716,
-      "enabled": true
+      "amount": 1.0,
+      "enabled": false
     },
     "screen_wave": {
-      "distance": 5.0,
-      "enabled": true,
-      "intensity": 0.004999999888241291,
-      "rotation_enabled": true,
+      "distance": 1.0,
+      "enabled": false,
+      "intensity": 0.019999999552965164,
+      "rotation_enabled": false,
       "rotation_max": 180.0,
       "rotation_min": -180.0,
-      "shift_amount": 0.10000000149011612,
-      "shift_enabled": true,
-      "shift_speed": 2.1700000762939453,
+      "shift_amount": 0.5,
+      "shift_enabled": false,
+      "shift_speed": 1.0,
       "speed": 0.0,
-      "x_enabled": true,
-      "y_enabled": true
+      "x_enabled": false,
+      "y_enabled": false
     },
     "sharpness": {
-      "amount": 1.5,
-      "enabled": true
-    },
-    "stop_motion": {
-      "capture_interval": 1,
-      "decay_multiplier": 0.5
+      "amount": 1.0,
+      "enabled": false
     }
   },
   "enabled": true,

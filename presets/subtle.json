@@ -5,7 +5,7 @@
       "mode": "normal"
     },
     "chromatic_aberration": {
-      "amount": 0.0,
+      "amount": 9.999999747378752e-05,
       "enabled": true,
       "fade_speed": 1.0
     },
@@ -75,10 +75,6 @@
     "sharpness": {
       "amount": 1.5,
       "enabled": true
-    },
-    "stop_motion": {
-      "capture_interval": 1,
-      "decay_multiplier": 0.5
     }
   },
   "enabled": true,
