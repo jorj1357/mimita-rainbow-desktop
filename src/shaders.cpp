@@ -46,16 +46,9 @@ bool CompileShaders(ID3D11Device* device, CompiledShaders& out) {
     trail_blob->Release();
     if (FAILED(hr)) { Log::HR("CreateTrailPS", hr); return false; }
 
-    // Temporal composite pixel shader
-    ID3DBlob* temporal_blob = nullptr;
-    if (!CompileShaderFromString(TEMPORAL_PS_SRC, "ps_main", "ps_5_0", &temporal_blob)) return false;
-    hr = device->CreatePixelShader(temporal_blob->GetBufferPointer(), temporal_blob->GetBufferSize(), nullptr, &out.temporalPs);
-    temporal_blob->Release();
-    if (FAILED(hr)) { Log::HR("CreateTemporalPS", hr); return false; }
-
     // Constant buffer (main) — must match HLSL cbuffer size (16-byte aligned)
     D3D11_BUFFER_DESC cb = {};
-    cb.ByteWidth = 192; cb.Usage = D3D11_USAGE_DYNAMIC;
+    cb.ByteWidth = 128; cb.Usage = D3D11_USAGE_DYNAMIC;
     cb.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     cb.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     hr = device->CreateBuffer(&cb, nullptr, &out.constant_buffer);
@@ -65,11 +58,6 @@ bool CompileShaders(ID3D11Device* device, CompiledShaders& out) {
     cb.ByteWidth = 16; // 4 floats
     hr = device->CreateBuffer(&cb, nullptr, &out.trail_buffer);
     if (FAILED(hr)) { Log::HR("CreateTrailCB", hr); return false; }
-
-    // Temporal constant buffer (opacity + debug mode + 3 debug colors + 2 padding = 32 bytes)
-    cb.ByteWidth = 32;
-    hr = device->CreateBuffer(&cb, nullptr, &out.temporal_buffer);
-    if (FAILED(hr)) { Log::HR("CreateTemporalCB", hr); return false; }
 
     // Sampler
     D3D11_SAMPLER_DESC sd = {};
@@ -87,11 +75,9 @@ void ReleaseShaders(CompiledShaders& s) {
     if (s.vs) s.vs->Release();
     if (s.ps) s.ps->Release();
     if (s.trailPs) s.trailPs->Release();
-    if (s.temporalPs) s.temporalPs->Release();
     if (s.input_layout) s.input_layout->Release();
     if (s.constant_buffer) s.constant_buffer->Release();
     if (s.trail_buffer) s.trail_buffer->Release();
-    if (s.temporal_buffer) s.temporal_buffer->Release();
     if (s.sampler_state) s.sampler_state->Release();
     s = {};
 }

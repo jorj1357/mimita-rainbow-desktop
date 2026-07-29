@@ -62,12 +62,6 @@ uniform float u_bloom_intensity;
 
 uniform bool u_edge_enabled;
 
-uniform bool u_glow_enabled;
-uniform float u_glow_intensity;
-uniform float u_glow_speed;
-uniform float u_glow_distance;
-uniform bool u_glow_move_enabled;
-
 vec3 rgb2hsv(vec3 c) {
     vec4 K = vec4(0.0, -1.0/3.0, 2.0/3.0, -1.0);
     vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
@@ -225,30 +219,6 @@ void main() {
         }
         blur /= ksum;
         color = color + blur * u_bloom_intensity;
-    }
-
-    // --- warm animated bloom ---
-    if (u_glow_enabled) {
-        vec2 px = 1.0 / u_resolution;
-        vec2 animOff = vec2(0.0);
-        if (u_glow_move_enabled) {
-            float a = u_time * u_glow_speed;
-            animOff = vec2(sin(a), cos(a * 0.7)) * u_glow_distance * 0.05;
-        }
-        vec3 glow = vec3(0.0);
-        float kernel[9] = float[](1.0, 2.0, 1.0, 2.0, 4.0, 2.0, 1.0, 2.0, 1.0);
-        for (int y = -1; y <= 1; y++) {
-            for (int x = -1; x <= 1; x++) {
-                vec2 off = (vec2(float(x), float(y)) * 2.0 + animOff) * px;
-                vec3 s = texture(u_tex0, uv + off).rgb;
-                float l = dot(s, vec3(0.299, 0.587, 0.114));
-                float bright = max(l - 0.5, 0.0);
-                glow += s * bright * kernel[(y+1)*3 + (x+1)];
-            }
-        }
-        glow /= 16.0;
-        vec3 warm = vec3(1.0, 0.7, 0.3);
-        color += glow * u_glow_intensity * warm;
     }
 
     // --- motion trail ---

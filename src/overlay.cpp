@@ -65,30 +65,3 @@ HWND CreateOverlayWindow(HINSTANCE hInstance, int width, int height, bool fullsc
 
     return hwnd;
 }
-
-HWND CreateOBSCaptureWindow(HINSTANCE hInstance, int width, int height) {
-    WNDCLASSW wc = {};
-    wc.lpfnWndProc = DefWindowProcW;
-    wc.hInstance = hInstance;
-    wc.lpszClassName = L"DesktopFXShadow";
-    wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
-    RegisterClassW(&wc);
-
-    HWND hwnd = CreateWindowExW(
-        WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
-        L"DesktopFXShadow", L"Desktop FX Shadow",
-        WS_OVERLAPPEDWINDOW,
-        -4000, 0, width, height,
-        nullptr, nullptr, hInstance, nullptr
-    );
-
-    if (hwnd) {
-        ShowWindow(hwnd, SW_SHOW);
-        UpdateWindow(hwnd);
-        Log::Write("OBS shadow window HWND=0x%p", hwnd);
-    } else {
-        Log::Write("CreateOBSCaptureWindow failed: GLE=%d", GetLastError());
-    }
-
-    return hwnd;
-}

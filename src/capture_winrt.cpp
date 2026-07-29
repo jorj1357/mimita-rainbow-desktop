@@ -29,6 +29,7 @@ WinRTCapture::~WinRTCapture() {
         if (impl_->framePool) impl_->framePool.Close();
         delete impl_;
     }
+    if (captureSRV_) captureSRV_->Release();
     if (captureTexture_) captureTexture_->Release();
     Log::Write("WinRT capture released");
 }
@@ -103,6 +104,9 @@ bool WinRTCapture::Init(ID3D11Device* d3d11Device, HMONITOR monitor) {
     td.BindFlags = D3D11_BIND_SHADER_RESOURCE;
     hr = d3d11Device->CreateTexture2D(&td, nullptr, &captureTexture_);
     if (FAILED(hr)) { Log::HR("CreateTexture2D", hr); return false; }
+
+    hr = d3d11Device->CreateShaderResourceView(captureTexture_, nullptr, &captureSRV_);
+    if (FAILED(hr)) { Log::HR("CreateSRV", hr); return false; }
 
     initialized_ = true;
     Log::Write("WinRT capture init OK");

@@ -7,10 +7,11 @@
     "chromatic_aberration": {
       "amount": 0.003000000026077032,
       "enabled": false,
-      "fade_speed": 1.0
+      "fade_speed": 1.0,
+      "mode": "off"
     },
     "contrast": {
-      "amount": 5.0,
+      "amount": 1.0,
       "enabled": false
     },
     "edge_detect": {
@@ -20,67 +21,38 @@
       "enabled": false,
       "intensity": 0.05000000074505806
     },
-    "glow": {
-      "distance": 0.30000001192092896,
-      "enabled": false,
-      "intensity": 1.0199999809265137,
-      "move_enabled": false,
-      "speed": 2.3299999237060547
-    },
     "grayscale": {
       "enabled": false
     },
     "hue": {
-      "amount": 0.07000000029802322,
-      "b_enabled": true,
+      "amount": 0.6700000166893005,
       "enabled": false,
-      "g_enabled": true,
-      "max_speed": 0.0010000000474974513,
-      "min_speed": 0.0,
-      "mod_enabled": true,
-      "mod_speed": 1.0,
-      "r_enabled": true,
-      "speed": 0.07000000029802322
+      "speed": 0.6700000166893005
     },
     "invert": {
       "enabled": false
     },
     "motion_trail": {
-      "enabled": true,
-      "frames": 0,
-      "opacity": 0.0
+      "enabled": false,
+      "frames": 10,
+      "opacity": 0.5
     },
     "pixelate": {
       "block_size": 8.0,
       "enabled": false
     },
     "saturation": {
-      "amount": 2.2300000190734863,
+      "amount": 1.0,
       "enabled": false
     },
     "screen_wave": {
-      "distance": 1.0,
       "enabled": false,
-      "intensity": 0.0020000000949949026,
-      "rotation_enabled": true,
-      "rotation_max": 180.0,
-      "rotation_min": -180.0,
-      "shift_amount": 0.5,
-      "shift_enabled": true,
-      "shift_speed": 1.0,
-      "speed": 0.0,
-      "x_enabled": true,
-      "y_enabled": true
+      "intensity": 0.019999999552965164,
+      "speed": 0.5
     },
     "sharpness": {
-      "amount": 2.140000104904175,
+      "amount": 1.0,
       "enabled": false
-    },
-    "stop_motion": {
-      "additive": false,
-      "capture_interval": 10,
-      "debug_colors": false,
-      "decay_multiplier": 0.5
     }
   },
   "enabled": true,

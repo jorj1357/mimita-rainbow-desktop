@@ -26,15 +26,15 @@
     },
     "hue": {
       "amount": 0.6700000166893005,
-      "enabled": false,
+      "enabled": true,
       "speed": 0.6700000166893005
     },
     "invert": {
       "enabled": false
     },
     "motion_trail": {
-      "enabled": true,
-      "frames": 555,
+      "enabled": false,
+      "frames": 10,
       "opacity": 0.5
     },
     "pixelate": {
