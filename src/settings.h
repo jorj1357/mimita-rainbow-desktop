@@ -8,3 +8,4 @@ struct SettingsWindowParams {
 };
 
 int ShowSettingsWindow(SettingsWindowParams* params);
+void RefreshPresetDropdown();

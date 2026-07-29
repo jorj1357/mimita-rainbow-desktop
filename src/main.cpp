@@ -8,6 +8,7 @@
 #include "log.h"
 #include "settings.h"
 #include "output_sharing.h"
+#include "presets.h"
 
 static std::atomic<bool> g_overlayRunning{false};
 
@@ -44,6 +45,21 @@ static DWORD WINAPI OverlayThread(LPVOID param) {
     QueryPerformanceFrequency(&freq); QueryPerformanceCounter(&start);
 
     if (LoadConfig("config.json", cfg)) ConfigApply(cfg);
+
+    // Load active preset on top of config
+    {
+        std::string activePreset = GetActivePreset();
+        if (!activePreset.empty()) {
+            char cwd[MAX_PATH];
+            GetCurrentDirectoryA(MAX_PATH, cwd);
+            std::string path = std::string(cwd) + "\\presets\\" + activePreset + ".json";
+            AppConfig presetCfg;
+            if (LoadConfig(path, presetCfg)) {
+                ConfigApply(presetCfg);
+                Log::Write("loaded active preset '%s'", activePreset.c_str());
+            }
+        }
+    }
 
     // Warmup: wait for first captured frame so SRV has valid content
     for (int r = 0; r < 120; r++) {

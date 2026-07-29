@@ -12,6 +12,7 @@
 #include "../third_party/json.hpp"
 #include "settings.h"
 #include "config.h"
+#include "presets.h"
 #include "log.h"
 
 #pragma comment(lib, "comctl32.lib")
@@ -23,7 +24,8 @@ using json = nlohmann::json;
 static HWND g_hwnd = nullptr;
 static std::atomic<bool>* g_overlayRunning = nullptr;
 static bool g_suppressWrites = false;
-static bool g_stopMotionReady = false;  // stop_motion controls exist
+static bool g_stopMotionReady = false;
+static HWND g_presetCombo = nullptr;
 
 static HFONT g_font = nullptr;
 static HBRUSH g_blackBrush = nullptr;
@@ -473,6 +475,9 @@ static void CreateControls(HWND parent) {
     }
 }
 
+static void CreatePresetControls(HWND parent);
+void RefreshPresetDropdown();
+
 static void RebuildControls() {
     HWND child = GetWindow(g_hwnd, GW_CHILD);
     while (child) {
@@ -485,6 +490,134 @@ static void RebuildControls() {
     }
     ParseLayout(g_layoutPath, g_layout);
     CreateControls(g_hwnd);
+    CreatePresetControls(g_hwnd);
+}
+
+// ── Preset save dialog ──
+static std::string g_presetDlgResult;
+
+static LRESULT CALLBACK PresetNameDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+    if (msg == WM_CREATE) {
+        CreateWindowExW(WS_EX_CLIENTEDGE, L"EDIT", L"",
+            WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL,
+            10, 8, 260, 22, hwnd, (HMENU)100, nullptr, nullptr);
+        CreateWindowW(L"BUTTON", L"Save", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+            120, 38, 70, 24, hwnd, (HMENU)IDOK, nullptr, nullptr);
+        CreateWindowW(L"BUTTON", L"Cancel", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+            200, 38, 70, 24, hwnd, (HMENU)IDCANCEL, nullptr, nullptr);
+        return 0;
+    }
+    if (msg == WM_COMMAND) {
+        if (LOWORD(wParam) == IDOK) {
+            wchar_t buf[256]; GetDlgItemTextW(hwnd, 100, buf, 256);
+            char abuf[256]; wcstombs(abuf, buf, 256);
+            g_presetDlgResult = abuf;
+            DestroyWindow(hwnd);
+            return 0;
+        }
+        if (LOWORD(wParam) == IDCANCEL || LOWORD(wParam) == 2) {
+            g_presetDlgResult.clear();
+            DestroyWindow(hwnd);
+            return 0;
+        }
+        return 0;
+    }
+    if (msg == WM_CLOSE) {
+        g_presetDlgResult.clear();
+        DestroyWindow(hwnd);
+        return 0;
+    }
+    return DefWindowProcW(hwnd, msg, wParam, lParam);
+}
+
+static std::string PromptForPresetName(HWND parent) {
+    WNDCLASSW wc = {};
+    wc.lpfnWndProc = PresetNameDlgProc;
+    wc.hInstance = GetModuleHandleW(nullptr);
+    wc.hbrBackground = (HBRUSH)(COLOR_BTNFACE + 1);
+    wc.lpszClassName = L"PresetNameDlgClass";
+    RegisterClassW(&wc);
+
+    RECT pr; GetWindowRect(parent, &pr);
+    int x = pr.left + (pr.right - pr.left - 280) / 2;
+    int y = pr.top + (pr.bottom - pr.top - 80) / 2;
+
+    HWND dlg = CreateWindowExW(WS_EX_DLGMODALFRAME, L"PresetNameDlgClass", L"Save Preset",
+        WS_CAPTION | WS_SYSMENU | WS_VISIBLE,
+        x, y, 280, 80, parent, nullptr, wc.hInstance, nullptr);
+    if (!dlg) { UnregisterClassW(L"PresetNameDlgClass", wc.hInstance); return ""; }
+
+    EnableWindow(parent, FALSE);
+    MSG msg;
+    while (IsWindow(dlg)) {
+        while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) {
+            TranslateMessage(&msg);
+            DispatchMessageW(&msg);
+        }
+        Sleep(1);
+    }
+    EnableWindow(parent, TRUE);
+    SetForegroundWindow(parent);
+    UnregisterClassW(L"PresetNameDlgClass", wc.hInstance);
+    return g_presetDlgResult;
+}
+
+// ── Preset GUI ──
+void RefreshPresetDropdown() {
+    if (!g_presetCombo) return;
+    SendMessage(g_presetCombo, CB_RESETCONTENT, 0, 0);
+    auto names = ListPresets();
+    int sel = -1;
+    std::string active = GetActivePreset();
+    for (size_t i = 0; i < names.size(); i++) {
+        wchar_t wbuf[256]; mbstowcs(wbuf, names[i].c_str(), 256);
+        SendMessage(g_presetCombo, CB_ADDSTRING, 0, (LPARAM)wbuf);
+        if (names[i] == active) sel = (int)i;
+    }
+    if (sel >= 0) SendMessage(g_presetCombo, CB_SETCURSEL, sel, 0);
+}
+
+static void CreatePresetControls(HWND parent) {
+    int y = 670;
+    CreateWindowW(L"STATIC", L"", WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ,
+        10, y, 470, 2, parent, nullptr, nullptr, nullptr);
+    y += 10;
+    CreateWindowW(L"STATIC", L"Preset:", WS_CHILD | WS_VISIBLE,
+        14, y, 50, 20, parent, nullptr, nullptr, nullptr);
+
+    g_presetCombo = CreateWindowW(L"COMBOBOX", L"", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,
+        65, y - 2, 180, 200, parent, nullptr, nullptr, nullptr);
+    SetWindowTheme(g_presetCombo, L" ", L" ");
+    SendMessage(g_presetCombo, WM_SETFONT, (WPARAM)g_font, 0);
+
+    HWND saveBtn = CreateWindowW(L"BUTTON", L"Save Preset",
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+        255, y - 2, 90, 24, parent, nullptr, nullptr, nullptr);
+    SetWindowTheme(saveBtn, L" ", L" "); SendMessage(saveBtn, WM_SETFONT, (WPARAM)g_font, 0);
+    SetFieldProp(saveBtn, "preset_save");
+
+    HWND loadBtn = CreateWindowW(L"BUTTON", L"Load",
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+        350, y - 2, 55, 24, parent, nullptr, nullptr, nullptr);
+    SetWindowTheme(loadBtn, L" ", L" "); SendMessage(loadBtn, WM_SETFONT, (WPARAM)g_font, 0);
+    SetFieldProp(loadBtn, "preset_load");
+
+    HWND delBtn = CreateWindowW(L"BUTTON", L"Del",
+        WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+        410, y - 2, 50, 24, parent, nullptr, nullptr, nullptr);
+    SetWindowTheme(delBtn, L" ", L" "); SendMessage(delBtn, WM_SETFONT, (WPARAM)g_font, 0);
+    SetFieldProp(delBtn, "preset_del");
+
+    RefreshPresetDropdown();
+}
+
+static bool IsValidPresetName(const std::string& name) {
+    if (name.empty()) return false;
+    for (char c : name) {
+        if (c == '\\' || c == '/' || c == ':' || c == '*' || c == '?' || c == '"' || c == '<' || c == '>' || c == '|')
+            return false;
+    }
+    return true;
 }
 
 static LRESULT CALLBACK SettingsWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -546,6 +679,196 @@ static LRESULT CALLBACK SettingsWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
                            (unsigned long long)g_config.trail_clear_request);
                 return 0;
             }
+            if (field == "preset_save") {
+                std::string name = PromptForPresetName(hwnd);
+                if (!IsValidPresetName(name)) return 0;
+                json j;
+                j["enabled"] = GetCheckValue("master");
+                j["panic_key"] = "ctrl+shift+alt+k";
+                json e;
+                e["hue"]["amount"] = GetEditValue("hue");
+                e["hue"]["speed"] = GetEditValue("hue");
+                e["hue"]["min_speed"] = GetEditValue("hue_minspeed");
+                e["hue"]["max_speed"] = GetEditValue("hue_maxspeed");
+                e["hue"]["mod_speed"] = GetEditValue("hue_modspeed");
+                e["hue"]["enabled"] = GetCheckValue("hue");
+                e["hue"]["r_enabled"] = GetCheckValue("hue_r");
+                e["hue"]["g_enabled"] = GetCheckValue("hue_g");
+                e["hue"]["b_enabled"] = GetCheckValue("hue_b");
+                e["hue"]["mod_enabled"] = GetCheckValue("hue_mod");
+                e["contrast"]["amount"] = GetEditValue("contrast");
+                e["saturation"]["amount"] = GetEditValue("saturation");
+                e["contrast"]["enabled"] = GetCheckValue("contrast");
+                e["saturation"]["enabled"] = GetCheckValue("saturation");
+                e["invert"]["enabled"] = GetCheckValue("invert");
+                e["grayscale"]["enabled"] = GetCheckValue("grayscale");
+                e["pixelate"]["block_size"] = GetEditValue("pixelate");
+                e["pixelate"]["enabled"] = GetCheckValue("pixelate");
+                int sel = GetComboSel("blend");
+                static const char* MN[] = {"normal","additive","xnor","subtract","multiply","screen","difference","overlay","and","or"};
+                if (sel >= 0 && sel < 10) {
+                    e["blend_mode"]["enabled"] = sel > 0;
+                    e["blend_mode"]["mode"] = MN[sel];
+                }
+                e["glitch"]["intensity"] = GetEditValue("glitch");
+                e["glitch"]["enabled"] = GetCheckValue("glitch");
+                e["edge_detect"]["enabled"] = GetCheckValue("edge");
+                e["chromatic_aberration"]["enabled"] = GetCheckValue("chroma");
+                e["chromatic_aberration"]["amount"] = GetEditValue("chroma");
+                e["chromatic_aberration"]["fade_speed"] = 1.0;
+                e["sharpness"]["enabled"] = GetCheckValue("sharp");
+                e["sharpness"]["amount"] = GetEditValue("sharp");
+                e["screen_wave"]["enabled"] = GetCheckValue("wave");
+                e["screen_wave"]["intensity"] = GetEditValue("wave");
+                e["screen_wave"]["speed"] = GetEditValue("wave_speed");
+                e["screen_wave"]["distance"] = GetEditValue("wave_dist");
+                e["screen_wave"]["x_enabled"] = GetCheckValue("wave_x");
+                e["screen_wave"]["y_enabled"] = GetCheckValue("wave_y");
+                e["screen_wave"]["shift_enabled"] = GetCheckValue("wave_shift");
+                e["screen_wave"]["shift_amount"] = GetEditValue("wave_shamt");
+                e["screen_wave"]["shift_speed"] = GetEditValue("wave_shspd");
+                e["screen_wave"]["rotation_enabled"] = GetCheckValue("wave_rot");
+                e["screen_wave"]["rotation_min"] = GetEditValue("wave_rotmin");
+                e["screen_wave"]["rotation_max"] = GetEditValue("wave_rotmax");
+                e["motion_trail"]["enabled"] = GetCheckValue("trail");
+                e["motion_trail"]["opacity"] = GetEditValue("trail_opacity");
+                e["motion_trail"]["frames"] = (int)GetEditValue("trail_frames");
+                e["glow"]["enabled"] = GetCheckValue("glow");
+                e["glow"]["intensity"] = GetEditValue("glow");
+                e["glow"]["speed"] = GetEditValue("glow_speed");
+                e["glow"]["distance"] = GetEditValue("glow_distance");
+                e["glow"]["move_enabled"] = GetCheckValue("glow_move");
+                j["effects"] = e;
+                if (SavePreset(name, j)) {
+                    SetActivePreset(name);
+                    RefreshPresetDropdown();
+                    Log::Write("GUI: saved preset '%s'", name.c_str());
+                }
+                return 0;
+            }
+            if (field == "preset_load") {
+                int idx = (int)SendMessage(g_presetCombo, CB_GETCURSEL, 0, 0);
+                if (idx < 0) return 0;
+                wchar_t wbuf[256]; SendMessage(g_presetCombo, CB_GETLBTEXT, idx, (LPARAM)wbuf);
+                char name[256]; wcstombs(name, wbuf, 256);
+                json pj;
+                if (!LoadPresetFile(name, pj)) return 0;
+                // Apply preset to all controls
+                g_suppressWrites = true;
+                HWND child = GetWindow(g_hwnd, GW_CHILD);
+                while (child) {
+                    std::string f = GetFieldProp(child);
+                    auto getEff = [&](const char* section, const char* key, auto def) {
+                        try { return pj["effects"].value(section, json::object()).value(key, def); }
+                        catch (...) { return def; }
+                    };
+                    auto setCheck = [&](bool val) {
+                        SendMessage(child, BM_SETCHECK, val ? BST_CHECKED : BST_UNCHECKED, 0);
+                    };
+                    if (f == "master") setCheck(pj.value("enabled", true));
+                    else if (f == "hue") setCheck(getEff("hue","enabled", false));
+                    else if (f == "hue_r") setCheck(getEff("hue","r_enabled", true));
+                    else if (f == "hue_g") setCheck(getEff("hue","g_enabled", true));
+                    else if (f == "hue_b") setCheck(getEff("hue","b_enabled", true));
+                    else if (f == "hue_mod") setCheck(getEff("hue","mod_enabled", false));
+                    else if (f == "contrast") setCheck(getEff("contrast","enabled", false));
+                    else if (f == "saturation") setCheck(getEff("saturation","enabled", false));
+                    else if (f == "invert") setCheck(getEff("invert","enabled", false));
+                    else if (f == "grayscale") setCheck(getEff("grayscale","enabled", false));
+                    else if (f == "pixelate") setCheck(getEff("pixelate","enabled", false));
+                    else if (f == "glitch") setCheck(getEff("glitch","enabled", false));
+                    else if (f == "edge") setCheck(getEff("edge_detect","enabled", false));
+                    else if (f == "chroma") setCheck(getEff("chromatic_aberration","enabled", false));
+                    else if (f == "sharp") setCheck(getEff("sharpness","enabled", false));
+                    else if (f == "wave") setCheck(getEff("screen_wave","enabled", false));
+                    else if (f == "wave_x") setCheck(getEff("screen_wave","x_enabled", true));
+                    else if (f == "wave_y") setCheck(getEff("screen_wave","y_enabled", true));
+                    else if (f == "wave_shift") setCheck(getEff("screen_wave","shift_enabled", false));
+                    else if (f == "wave_rot") setCheck(getEff("screen_wave","rotation_enabled", false));
+                    else if (f == "trail") setCheck(getEff("motion_trail","enabled", false));
+                    else if (f == "glow") setCheck(getEff("glow","enabled", false));
+                    else if (f == "glow_move") setCheck(getEff("glow","move_enabled", true));
+                    else if (f == "blend" && GetClassNameStr(child).find("Combo") != std::string::npos) {
+                        std::string mode = getEff("blend_mode","mode", std::string("normal"));
+                        static const char* MODES[] = {"normal","additive","xnor","subtract","multiply","screen","difference","overlay","and","or"};
+                        for (int i = 0; i < 10; i++) {
+                            if (mode == MODES[i]) { SendMessage(child, CB_SETCURSEL, i, 0); break; }
+                        }
+                    }
+                    child = GetNextWindow(child, GW_HWNDNEXT);
+                }
+                // Set edit values
+                auto setEdit = [&](const std::string& field, float val) {
+                    HWND e = GetWindow(g_hwnd, GW_CHILD);
+                    while (e) {
+                        if (GetClassNameStr(e) == "Edit" && GetFieldProp(e) == field) {
+                            wchar_t buf[32]; swprintf_s(buf, L"%.3f", val);
+                            SetWindowTextW(e, buf); break;
+                        }
+                        e = GetNextWindow(e, GW_HWNDNEXT);
+                    }
+                };
+                auto setInt = [&](const std::string& field, int val) {
+                    HWND e = GetWindow(g_hwnd, GW_CHILD);
+                    while (e) {
+                        if (GetClassNameStr(e) == "Edit" && GetFieldProp(e) == field) {
+                            wchar_t buf[32]; swprintf_s(buf, L"%d", val);
+                            SetWindowTextW(e, buf); break;
+                        }
+                        e = GetNextWindow(e, GW_HWNDNEXT);
+                    }
+                };
+                auto getF = [&](const char* s, const char* k, float dflt) {
+                    try { return (float)(double)pj["effects"].value(s, json::object()).value(k, (double)dflt); }
+                    catch (...) { return dflt; }
+                };
+                auto getI = [&](const char* s, const char* k, int dflt) {
+                    try { return pj["effects"].value(s, json::object()).value(k, dflt); }
+                    catch (...) { return dflt; }
+                };
+                setEdit("hue", getF("hue","amount",0));
+                setEdit("hue_minspeed", getF("hue","min_speed",0));
+                setEdit("hue_maxspeed", getF("hue","max_speed",2));
+                setEdit("hue_modspeed", getF("hue","mod_speed",1));
+                setEdit("contrast", getF("contrast","amount",1));
+                setEdit("saturation", getF("saturation","amount",1));
+                setEdit("pixelate", getF("pixelate","block_size",8));
+                setEdit("glitch", getF("glitch","intensity",0.05f));
+                setEdit("chroma", getF("chromatic_aberration","amount",0.003f));
+                setEdit("sharp", getF("sharpness","amount",1));
+                setEdit("wave", getF("screen_wave","intensity",0.02f));
+                setEdit("wave_speed", getF("screen_wave","speed",0.5f));
+                setEdit("wave_dist", getF("screen_wave","distance",1));
+                setEdit("wave_shamt", getF("screen_wave","shift_amount",0.5f));
+                setEdit("wave_shspd", getF("screen_wave","shift_speed",1));
+                setEdit("wave_rotmin", getF("screen_wave","rotation_min",-180));
+                setEdit("wave_rotmax", getF("screen_wave","rotation_max",180));
+                setEdit("trail_opacity", getF("motion_trail","opacity",0.5f));
+                setInt("trail_frames", getI("motion_trail","frames",10));
+                setEdit("glow", getF("glow","intensity",0.3f));
+                setEdit("glow_speed", getF("glow","speed",0.3f));
+                setEdit("glow_distance", getF("glow","distance",0.3f));
+                g_suppressWrites = false;
+                WriteConfig();
+                SetActivePreset(name);
+                RefreshPresetDropdown();
+                Log::Write("GUI: loaded preset '%s'", name);
+                return 0;
+            }
+            if (field == "preset_del") {
+                int idx = (int)SendMessage(g_presetCombo, CB_GETCURSEL, 0, 0);
+                if (idx < 0) return 0;
+                wchar_t wbuf[256]; SendMessage(g_presetCombo, CB_GETLBTEXT, idx, (LPARAM)wbuf);
+                char name[256]; wcstombs(name, wbuf, 256);
+                wchar_t msg[512];
+                wsprintfW(msg, L"Delete preset \"%hs\"?", name);
+                if (MessageBoxW(hwnd, msg, L"Delete Preset", MB_YESNO | MB_ICONQUESTION) == IDYES) {
+                    DeletePreset(name);
+                    if (GetActivePreset() == name) SetActivePreset("");
+                    RefreshPresetDropdown();
+                }
+                return 0;
+            }
         }
         if (!g_suppressWrites && (code == BN_CLICKED || code == EN_CHANGE || code == CBN_SELCHANGE)) {
             WriteConfig();
@@ -603,6 +926,7 @@ int ShowSettingsWindow(SettingsWindowParams* params) {
     g_hwnd = hwnd;
 
     CreateControls(hwnd);
+    CreatePresetControls(hwnd);
 
     // Initialize control values from config (suppress writes during init)
     {
@@ -639,6 +963,97 @@ int ShowSettingsWindow(SettingsWindowParams* params) {
     }
     g_stopMotionReady = true;
     WriteConfig();
+
+    // Load active preset on startup (overrides config.json values)
+    {
+        std::string active = GetActivePreset();
+        if (!active.empty()) {
+            json pj;
+            if (LoadPresetFile(active, pj)) {
+                g_suppressWrites = true;
+                HWND child = GetWindow(g_hwnd, GW_CHILD);
+                while (child) {
+                    std::string f = GetFieldProp(child);
+                    auto setC = [&](bool v) { SendMessage(child, BM_SETCHECK, v ? BST_CHECKED : BST_UNCHECKED, 0); };
+                    if (f == "master") setC(pj.value("enabled", true));
+                    else if (f == "hue") setC(pj["effects"].value("hue", json::object()).value("enabled", false));
+                    else if (f == "hue_r") setC(pj["effects"].value("hue", json::object()).value("r_enabled", true));
+                    else if (f == "hue_g") setC(pj["effects"].value("hue", json::object()).value("g_enabled", true));
+                    else if (f == "hue_b") setC(pj["effects"].value("hue", json::object()).value("b_enabled", true));
+                    else if (f == "hue_mod") setC(pj["effects"].value("hue", json::object()).value("mod_enabled", false));
+                    else if (f == "contrast") setC(pj["effects"].value("contrast", json::object()).value("enabled", false));
+                    else if (f == "saturation") setC(pj["effects"].value("saturation", json::object()).value("enabled", false));
+                    else if (f == "invert") setC(pj["effects"].value("invert", json::object()).value("enabled", false));
+                    else if (f == "grayscale") setC(pj["effects"].value("grayscale", json::object()).value("enabled", false));
+                    else if (f == "pixelate") setC(pj["effects"].value("pixelate", json::object()).value("enabled", false));
+                    else if (f == "glitch") setC(pj["effects"].value("glitch", json::object()).value("enabled", false));
+                    else if (f == "edge") setC(pj["effects"].value("edge_detect", json::object()).value("enabled", false));
+                    else if (f == "chroma") setC(pj["effects"].value("chromatic_aberration", json::object()).value("enabled", false));
+                    else if (f == "sharp") setC(pj["effects"].value("sharpness", json::object()).value("enabled", false));
+                    else if (f == "wave") setC(pj["effects"].value("screen_wave", json::object()).value("enabled", false));
+                    else if (f == "wave_x") setC(pj["effects"].value("screen_wave", json::object()).value("x_enabled", true));
+                    else if (f == "wave_y") setC(pj["effects"].value("screen_wave", json::object()).value("y_enabled", true));
+                    else if (f == "wave_shift") setC(pj["effects"].value("screen_wave", json::object()).value("shift_enabled", false));
+                    else if (f == "wave_rot") setC(pj["effects"].value("screen_wave", json::object()).value("rotation_enabled", false));
+                    else if (f == "trail") setC(pj["effects"].value("motion_trail", json::object()).value("enabled", false));
+                    else if (f == "glow") setC(pj["effects"].value("glow", json::object()).value("enabled", false));
+                    else if (f == "glow_move") setC(pj["effects"].value("glow", json::object()).value("move_enabled", true));
+                    else if (f == "blend" && GetClassNameStr(child).find("Combo") != std::string::npos) {
+                        std::string mode = pj["effects"].value("blend_mode", json::object()).value("mode", std::string("normal"));
+                        static const char* MODES[] = {"normal","additive","xnor","subtract","multiply","screen","difference","overlay","and","or"};
+                        for (int i = 0; i < 10; i++) { if (mode == MODES[i]) { SendMessage(child, CB_SETCURSEL, i, 0); break; } }
+                    }
+                    child = GetNextWindow(child, GW_HWNDNEXT);
+                }
+                // Set edit values
+                auto setE = [&](const std::string& field, float val) {
+                    HWND e = GetWindow(g_hwnd, GW_CHILD);
+                    while (e) {
+                        if (GetClassNameStr(e) == "Edit" && GetFieldProp(e) == field) {
+                            wchar_t buf[32]; swprintf_s(buf, L"%.3f", val); SetWindowTextW(e, buf); break;
+                        }
+                        e = GetNextWindow(e, GW_HWNDNEXT);
+                    }
+                };
+                auto setI = [&](const std::string& field, int val) {
+                    HWND e = GetWindow(g_hwnd, GW_CHILD);
+                    while (e) {
+                        if (GetClassNameStr(e) == "Edit" && GetFieldProp(e) == field) {
+                            wchar_t buf[32]; swprintf_s(buf, L"%d", val); SetWindowTextW(e, buf); break;
+                        }
+                        e = GetNextWindow(e, GW_HWNDNEXT);
+                    }
+                };
+                auto gF = [&](const char* s, const char* k, float d) { try { return (float)(double)pj["effects"].value(s, json::object()).value(k, (double)d); } catch (...) { return d; } };
+                auto gI = [&](const char* s, const char* k, int d) { try { return pj["effects"].value(s, json::object()).value(k, d); } catch (...) { return d; } };
+                setE("hue", gF("hue","amount",0));
+                setE("hue_minspeed", gF("hue","min_speed",0));
+                setE("hue_maxspeed", gF("hue","max_speed",2));
+                setE("hue_modspeed", gF("hue","mod_speed",1));
+                setE("contrast", gF("contrast","amount",1));
+                setE("saturation", gF("saturation","amount",1));
+                setE("pixelate", gF("pixelate","block_size",8));
+                setE("glitch", gF("glitch","intensity",0.05f));
+                setE("chroma", gF("chromatic_aberration","amount",0.003f));
+                setE("sharp", gF("sharpness","amount",1));
+                setE("wave", gF("screen_wave","intensity",0.02f));
+                setE("wave_speed", gF("screen_wave","speed",0.5f));
+                setE("wave_dist", gF("screen_wave","distance",1));
+                setE("wave_shamt", gF("screen_wave","shift_amount",0.5f));
+                setE("wave_shspd", gF("screen_wave","shift_speed",1));
+                setE("wave_rotmin", gF("screen_wave","rotation_min",-180));
+                setE("wave_rotmax", gF("screen_wave","rotation_max",180));
+                setE("trail_opacity", gF("motion_trail","opacity",0.5f));
+                setI("trail_frames", gI("motion_trail","frames",10));
+                setE("glow", gF("glow","intensity",0.3f));
+                setE("glow_speed", gF("glow","speed",0.3f));
+                setE("glow_distance", gF("glow","distance",0.3f));
+                g_suppressWrites = false;
+                WriteConfig();
+                RefreshPresetDropdown();
+            }
+        }
+    }
 
     ShowWindow(hwnd, SW_SHOW);
     RedrawWindow(hwnd, NULL, NULL, RDW_ERASE | RDW_INVALIDATE | RDW_ALLCHILDREN);
