@@ -51,13 +51,13 @@
       "opacity": 0.0
     },
     "pareidolia": {
-      "contrast_strength": 0.20000000298023224,
+      "contrast_strength": 2.0,
       "debug_view": false,
-      "emergence_speed": 0.15000000596046448,
-      "enabled": false,
-      "strength": 0.30000001192092896,
-      "symmetry_strength": 0.30000001192092896,
-      "zone_count": 6
+      "emergence_speed": 1.0099999904632568,
+      "enabled": true,
+      "strength": 1.2999999523162842,
+      "symmetry_strength": 2.0,
+      "zone_count": 16
     },
     "pixelate": {
       "block_size": 8.0,
