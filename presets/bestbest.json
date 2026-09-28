@@ -1,0 +1,102 @@
+{
+  "effects": {
+    "blend_mode": {
+      "enabled": false,
+      "mode": "normal"
+    },
+    "chromatic_aberration": {
+      "amount": 0.0003000000142492354,
+      "enabled": true,
+      "fade_speed": 1.0
+    },
+    "contrast": {
+      "amount": 1.0700000524520874,
+      "enabled": true
+    },
+    "edge_detect": {
+      "enabled": false
+    },
+    "glitch": {
+      "enabled": false,
+      "intensity": 0.05000000074505806
+    },
+    "glow": {
+      "distance": 0.30000001192092896,
+      "enabled": false,
+      "intensity": 0.30000001192092896,
+      "move_enabled": false,
+      "speed": 0.30000001192092896
+    },
+    "grayscale": {
+      "enabled": false
+    },
+    "hue": {
+      "amount": 0.2199999988079071,
+      "b_enabled": true,
+      "enabled": true,
+      "g_enabled": true,
+      "max_speed": 0.009999999776482582,
+      "min_speed": 0.0,
+      "mod_enabled": true,
+      "mod_speed": 0.10000000149011612,
+      "r_enabled": true,
+      "speed": 0.2199999988079071
+    },
+    "invert": {
+      "enabled": false
+    },
+    "motion_trail": {
+      "enabled": true,
+      "frames": 50,
+      "opacity": 0.0
+    },
+    "pareidolia": {
+      "contrast_strength": 2.0,
+      "debug_view": false,
+      "drift_amount": 1.0,
+      "drift_speed": 0.30000001192092896,
+      "emergence_speed": 0.0,
+      "enabled": true,
+      "max_radius": 2.0,
+      "min_radius": 0.07999999821186066,
+      "strength": 2.0,
+      "symmetry_strength": 2.0,
+      "zone_count": 15
+    },
+    "pixelate": {
+      "block_size": 8.0,
+      "enabled": false
+    },
+    "saturation": {
+      "amount": 1.409999966621399,
+      "enabled": true
+    },
+    "screen_wave": {
+      "distance": 1.399999976158142,
+      "enabled": true,
+      "intensity": 0.004999999888241291,
+      "rotation_enabled": true,
+      "rotation_max": 180.0,
+      "rotation_min": -180.0,
+      "shift_amount": 0.5,
+      "shift_enabled": true,
+      "shift_speed": 0.2800000011920929,
+      "speed": 0.0,
+      "x_enabled": true,
+      "y_enabled": true
+    },
+    "sharpness": {
+      "amount": 1.1699999570846558,
+      "enabled": true
+    },
+    "texture_breathing": {
+      "enabled": false,
+      "noise_strength": 0.30000001192092896,
+      "scale": 2.0,
+      "speed": 0.30000001192092896,
+      "strength": 0.0
+    }
+  },
+  "enabled": true,
+  "panic_key": "ctrl+shift+alt+k"
+}

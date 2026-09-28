@@ -1,0 +1,23 @@
+{
+  "effects": {
+    "texture_breathing": {
+      "enabled": true,
+      "strength": 0.7,
+      "speed": 0.8,
+      "scale": 4.0,
+      "noise_strength": 0.7
+    },
+    "pareidolia": {
+      "enabled": true,
+      "strength": 0.7,
+      "zone_count": 10,
+      "min_radius": 0.03,
+      "max_radius": 0.25,
+      "emergence_speed": 0.2,
+      "symmetry_strength": 0.5,
+      "contrast_strength": 0.4,
+      "debug_view": false
+    }
+  },
+  "enabled": true
+}

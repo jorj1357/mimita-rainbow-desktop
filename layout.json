@@ -1,0 +1,60 @@
+{
+  "window": { "width": 500, "height": 700 },
+  "controls": [
+    { "id": "master", "type": "check", "label": "Effects_enabled.?", "x": 14, "y": 8 },
+    { "type": "sep", "y": 36 },
+
+    { "id": "hue", "type": "hue", "label": "Hue", "y": 48, "smax": 10, "def": 0.67 },
+    { "id": "contrast", "type": "row", "label": "Contrast", "y": 130, "smax": 5, "def": 1 },
+    { "id": "saturation", "type": "row", "label": "Saturation", "y": 154, "smax": 5, "def": 1 },
+    { "id": "invert", "type": "check", "label": "Invert", "y": 178 },
+    { "id": "grayscale", "type": "check", "label": "Grayscale", "y": 198 },
+    { "id": "pixelate", "type": "row", "label": "Pixelate", "y": 222, "smax": 100, "def": 8 },
+    { "id": "glitch", "type": "row", "label": "Glitch", "y": 246, "smax": 1, "def": 0.05 },
+    { "id": "edge", "type": "check", "label": "Edge Detect", "y": 270 },
+    { "id": "chroma", "type": "row", "label": "Chromatic Ab.", "y": 294, "smax": 0.1, "def": 0.003 },
+    { "type": "sep", "y": 322 },
+
+    { "id": "glow", "type": "row", "label": "Glow", "y": 334, "smax": 5, "def": 0.3 },
+    { "id": "glow_speed", "type": "row", "label": "Glow Speed", "y": 358, "smax": 5, "def": 0.3 },
+    { "id": "glow_distance", "type": "row", "label": "Glow Distance", "y": 382, "smax": 1, "def": 0.3 },
+    { "id": "glow_move", "type": "check", "label": "Glow Move", "y": 406 },
+    { "type": "sep", "y": 430 },
+
+    { "id": "sharp", "type": "row", "label": "Sharpness", "y": 442, "smax": 10, "def": 1 },
+
+    { "id": "wave", "type": "wave", "label": "Screen Wave", "y": 466, "smax": 1, "def": 0.02,
+      "distance": { "label": "Distance", "smax": 10, "def": 1 },
+      "shift": { "label": "Shift", "smax": 5, "def": 0.5, "speed_smax": 5, "speed_def": 1 },
+      "rotation": { "label": "Rotation", "min_def": -180, "max_def": 180 }
+    },
+
+    { "id": "trail", "type": "stop_motion", "label": "Stop Motion Trails", "y": 568,
+      "frames_def": 10, "interval_def": 1, "decay_def": 0.5
+    },
+
+    { "type": "sep", "y": 608 },
+    { "id": "blend", "type": "combo", "label": "Blend Mode", "y": 620,
+      "options": ["Normal","Additive","XNOR","Subtract","Multiply","Screen","Difference","Overlay","AND","OR"] },
+    { "type": "sep", "y": 652 },
+
+    { "id": "breathing", "type": "check", "label": "Texture Breathing", "x": 14, "y": 664 },
+    { "id": "breath_intensity", "type": "row", "label": "Breathing Intensity", "y": 694, "smax": 2, "def": 0.3 },
+    { "id": "breath_spd", "type": "row", "label": "Breathing Speed", "y": 724, "smax": 2, "def": 0.5 },
+    { "id": "breath_scale", "type": "row", "label": "Noise Pattern Size", "y": 754, "smax": 5, "def": 2 },
+    { "id": "breath_noise", "type": "row", "label": "Surface Crawl", "y": 784, "smax": 2, "def": 0.5 },
+    { "type": "sep", "y": 820 },
+
+    { "id": "pareidolia", "type": "check", "label": "Pareidolia", "x": 14, "y": 836 },
+    { "id": "pareidolia_intensity", "type": "row", "label": "Face Detect Strength", "y": 866, "smax": 2, "def": 0.3 },
+    { "id": "pareidolia_zones", "type": "row", "label": "Number Of Zones", "y": 896, "smax": 16, "def": 6 },
+    { "id": "pareidolia_minrad", "type": "row", "label": "Zone Radius Min", "y": 926, "smax": 1, "def": 0.03 },
+    { "id": "pareidolia_maxrad", "type": "row", "label": "Zone Radius Max", "y": 956, "smax": 2, "def": 0.3 },
+    { "id": "pareidolia_driftspd", "type": "row", "label": "Zone Drift Speed", "y": 986, "smax": 2, "def": 0.3 },
+    { "id": "pareidolia_driftamt", "type": "row", "label": "Zone Drift Amount", "y": 1016, "smax": 1, "def": 0.15 },
+    { "id": "pareidolia_emer", "type": "row", "label": "Zone Lifecycle Speed", "y": 1046, "smax": 2, "def": 0.15 },
+    { "id": "pareidolia_sym", "type": "row", "label": "Symmetry Pull", "y": 1076, "smax": 2, "def": 0.3 },
+    { "id": "pareidolia_con", "type": "row", "label": "Shadow Emphasis", "y": 1106, "smax": 2, "def": 0.2 },
+    { "id": "pareidolia_debug", "type": "check", "label": "Debug View", "x": 14, "y": 1136 }
+  ]
+}
